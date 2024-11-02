@@ -1,6 +1,9 @@
 // https://docs.expo.dev/guides/using-eslint/
 module.exports = {
-    extends: 'expo',
+    extends: [
+        'plugin:@typescript-eslint/recommended',
+        'expo',
+    ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
         project: "./tsconfig.json",
