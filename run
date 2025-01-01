@@ -1,0 +1,24 @@
+#!/bin/bash
+
+WORK_DIR=$(pwd)
+
+_run_in_docker_bun() {
+    docker \
+        run -it --rm \
+        -v "$WORK_DIR:/app" \
+        -w "/app" \
+        -u bun \
+        oven/bun:latest \
+        "$@"
+}
+
+out=$(_run_in_docker_bun bun scripts/entry.ts "$@")
+res=$?
+
+if [ $res -eq 4 ]; then
+    cmd=$(echo "$out" | tr -d '\r')
+    $cmd
+else
+    echo "$out"
+    exit $res
+fi
