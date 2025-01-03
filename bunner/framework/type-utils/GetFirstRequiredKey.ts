@@ -15,7 +15,9 @@ type GetFirstRequiredKey<T, Keys extends readonly any[]> =
                     ? GetFirstRequiredKey<T, Rest> // If optional, recurse with remaining keys
                     : First // If required, return this key
                 : GetFirstRequiredKey<T, Rest> // If key doesn't exist in all variants, try next key
-            : never // If not a key of T, return never
+            : [] extends Rest
+                ? never // If no more keys to check, return never
+                : GetFirstRequiredKey<T, Rest> // If First isn't a key of T, try
         : never; // If no more keys to check, return never
 
 export default GetFirstRequiredKey;
