@@ -1,9 +1,10 @@
 import CommandCollection from "./types/CommandCollection";
 import ScriptArguments from "./types/ScriptArguments";
 import log from "./log";
-import executeCommand from "./executeCommand";
+import executeCommand from "./executeCommandInstance";
+import ProcessRunResultPromise from "./types/ProcessRunResultPromise";
 
-export default async function execute({
+export default async function executeCommandFromArguments({
     scriptArguments,
     commandCollection,
     fallbackCommandName,
@@ -11,7 +12,7 @@ export default async function execute({
     scriptArguments: ScriptArguments,
     commandCollection: CommandCollection,
     fallbackCommandName?: string,
-}): Promise<never> {
+}): ProcessRunResultPromise {
     const [commandName, restCommandArgs] = scriptArguments.popFirstArg();
     
     const command = commandCollection.get(commandName ?? '');
@@ -27,14 +28,12 @@ export default async function execute({
                 });
             }
         }
-        process.exit(1);
+        return 1;
     }
     
-    const res = await executeCommand({
+    return await executeCommand({
         command,
         commandCollection,
         scriptArguments: restCommandArgs,
     }) ?? 0;
-    
-    process.exit(res);
 }

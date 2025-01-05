@@ -1,8 +1,8 @@
 import loadCommandsFromDirectory from "./framework/loadCommandsFromDirectory";
 import CommandCollection from "./framework/types/CommandCollection";
-import execute from "./framework/execute";
 import BunnerConst from "./framework/const";
 import ScriptArguments from "./framework/types/ScriptArguments";
+import executeCommandFromArguments from "./framework/executeCommandFromArguments";
 
 const scriptArguments = ScriptArguments.initFromProcessArgv();
 
@@ -31,8 +31,10 @@ const commandCollection = CommandCollection.merge(
     userCommandCollection
 );
 
-execute({
+const errorCode = await executeCommandFromArguments({
     scriptArguments,
     commandCollection,
-    fallbackCommand: BunnerConst.HELP_COMMAND,
-});
+    fallbackCommandName: BunnerConst.HELP_COMMAND,
+}) ?? 0;
+
+process.exit(errorCode);

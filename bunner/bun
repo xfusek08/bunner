@@ -1,0 +1,17 @@
+#!/bin/bash
+
+run_in_bun_docker() {
+    local directory=$(pwd)
+    local args=$(echo "$@" | sed "s|$directory|/app|g") # Map paths from host to container
+    echo "Running in bun docker: docker run -it --rm -v $directory:/app -w /app -u bun oven/bun:latest $args" 1>&2
+    docker run \
+        -it \
+        --rm \
+        -v "$directory:/app" \
+        -w "/app" \
+        -u bun \
+        oven/bun:latest \
+        $args
+}
+
+run_in_bun_docker bun "$@"

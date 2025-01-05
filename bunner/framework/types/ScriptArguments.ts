@@ -36,12 +36,16 @@ export default class ScriptArguments {
         ] as const;
     }
     
-    public clear() {
+    public replace(args: string[]) {
         return new ScriptArguments(
             this.runDirectory,
             this.bunExecutable,
             this.scriptEntryPoint,
-            [],
+            args,
         );
+    }
+    
+    public clear() {
+        return this.replace([]);
     }
 }

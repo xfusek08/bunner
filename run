@@ -1,18 +1,10 @@
 #!/bin/bash
 
 WORK_DIR=$(pwd)
+BUN_EXEC=$(realpath "./bunner/bun")
+ENTRY_FILE=$(realpath "./bunner/entry.ts")
 
-_run_in_docker_bun() {
-    docker \
-        run -it --rm \
-        -v "$WORK_DIR:/app" \
-        -w "/app" \
-        -u bun \
-        oven/bun:latest \
-        "$@"
-}
-
-out=$(_run_in_docker_bun bun scripts/entry.ts "$@")
+out=$($BUN_EXEC "$ENTRY_FILE" $@)
 res=$?
 
 if [ $res -eq 4 ]; then

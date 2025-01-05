@@ -1,45 +1,41 @@
 import GetFirstRequiredKey from "../type-utils/GetFirstRequiredKey";
-import CommandOptionDefinition from "./CommandOptionDefinition";
+import { OptionDefinition, SpecificOptionDefinition } from "./OptionDefinition";
+import OptionValue from "./OptionValue";
 
-type EvaluateType<T extends CommandOptionDefinition> = (
-    T['type'] extends 'string' ? string
-        : T['type'] extends 'number' ? number
-        : T['type'] extends 'boolean' ? boolean
-        : never
-);
 
-type EvaluatePossibleOptionalType<T extends CommandOptionDefinition> =
-    T['required'] extends false
-        ? null|EvaluateType<T>
-        : EvaluateType<T>;
+
+export type ExtractOptionType<D extends OptionDefinition> = D extends SpecificOptionDefinition<infer T> ? T : never;
+
+export type OptionWithDefaultValue<D extends OptionDefinition> = D extends { defaultValue: OptionValue<ExtractOptionType<D>> } ? D : never;
+
+
+export type ExtractParsedOptionValueType<D extends OptionDefinition, V = OptionValue<ExtractOptionType<D>>> =
+    OptionWithDefaultValue<D> extends never
+        ? D['required'] extends true
+            ? V
+            : V|undefined
+        : V;
 
 type EvaluatedOption<
-    T extends CommandOptionDefinition,
-    Keys = T[GetFirstRequiredKey<T, ["long", "short"]>]
+    D extends OptionDefinition,
+    Keys = D[GetFirstRequiredKey<D, ["long", "short"]>],
 > = Keys extends string ? {
-    [K in Keys]: EvaluatePossibleOptionalType<T>;
+    [K in Keys]: ExtractParsedOptionValueType<D>
 } : never;
 
-type EvaluatedOptions<T extends readonly CommandOptionDefinition[]> =
+type EvaluatedOptions<T extends readonly OptionDefinition[]> =
     T extends readonly [infer First, ...infer Rest]
-        ? First extends CommandOptionDefinition
-            ? EvaluatedOption<First> & EvaluatedOptions<Rest extends readonly CommandOptionDefinition[] ? Rest : []>
+        ? First extends OptionDefinition
+            ? EvaluatedOption<First> & EvaluatedOptions<
+                Rest extends readonly OptionDefinition[]
+                    ? Rest
+                    : []
+                >
             : {}
         : {}
 
 export default EvaluatedOptions;
 
-
-const a = {
-    short: 'a',
-    // long: 'apple',
-    description: 'apple',
-    type: 'string',
-    required: true,
-} as const;
-
-type A = typeof a;
-
-type AA = EvaluatedOption<A>
-
-type BB = GetFirstRequiredKey<A, ["long", "short"]>
+export function hasDefaultValue<D extends OptionDefinition>(option: D): option is OptionWithDefaultValue<D> {
+    return 'defaultValue' in option && option.defaultValue !== undefined;
+}

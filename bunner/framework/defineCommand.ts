@@ -1,10 +1,8 @@
-import { CommandDefinitionWithOptions, CommandDefinitionWithoutOptions } from "./types/CommandDefinition";
-import CommandOptionDefinition from "./types/CommandOptionDefinition";
+import { CommandDefinition } from "./types/CommandDefinition";
+import { OptionDefinition } from "./types/OptionDefinition";
 
-function defineCommand<T extends readonly CommandOptionDefinition[]>(commandDefinition: CommandDefinitionWithOptions<T>): CommandDefinitionWithOptions<T>;
-function defineCommand(commandDefinition: CommandDefinitionWithoutOptions): CommandDefinitionWithoutOptions;
-function defineCommand(commandDefinition: any) {
+export default function defineCommand<
+    Options extends readonly OptionDefinition[]
+>(commandDefinition: CommandDefinition<Options>) {
     return commandDefinition;
 }
-
-export default defineCommand;

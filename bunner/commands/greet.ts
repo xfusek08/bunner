@@ -15,10 +15,11 @@ export default defineCommand({
         type: 'string',
         description: "A text to be printed",
         required: false,
+        defaultValue: "Hello World!",
     }] as const,
     action: async ({ options }) => {
         for (let i = 0; i < options.number; i++) {
-            console.log(options.text ?? "Hello World!");
+            console.log(options.text);
         }
     }
 });
