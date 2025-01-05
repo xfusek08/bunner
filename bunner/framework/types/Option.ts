@@ -21,7 +21,9 @@ export default class Option<T extends OptionType = OptionType> {
             definition.short,
             definition.description,
             definition.type,
-            definition.required,
+            'required' in definition
+                ? definition.required
+                : false,
             'defaultValue' in definition
                 ? definition.defaultValue
                 : undefined,
@@ -44,8 +46,8 @@ export default class Option<T extends OptionType = OptionType> {
         return this.long ? `--${this.long}` : "";
     }
     
-    public get value(): OptionValue<T>|undefined {
-        return this._value ?? this.defaultValue;
+    public get dashedIdentifier(): string {
+        return this.longDashedName === "" ? this.shortDashedName : this.longDashedName;
     }
     
     public get identifier(): string {
@@ -58,6 +60,14 @@ export default class Option<T extends OptionType = OptionType> {
         // Program should never reach this point, because the constructor enforces type that enforces the presence of at least one of the two properties
         throw new Error('Unknown Error: Option does not have neither long nor short name - This should never happen');
     }
+    
+    public get value(): OptionValue<T>|undefined {
+        if (this.isType('boolean')) {
+            return this._value ?? false as OptionValue<T>;
+        }
+        return this._value ?? this.defaultValue;
+    }
+    
     
     public withValue(value: OptionValue<T>): Option<T> {
         return new Option(
@@ -89,5 +99,9 @@ export default class Option<T extends OptionType = OptionType> {
         }
         
         return value as OptionValue<T>;
+    }
+    
+    public get isValueSet(): boolean {
+        return this._value !== undefined;
     }
 }

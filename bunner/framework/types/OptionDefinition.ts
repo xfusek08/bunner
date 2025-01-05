@@ -1,6 +1,8 @@
 import OptionValue from "./OptionValue";
 import { OptionType, OptionTypes } from "./OptionValueType";
 
+type OptionTypesWithoutBool = Exclude<OptionType, 'boolean'>;
+
 type BaseOptionDefinition = RequireAtLeastOne<{
     readonly short: string;
     readonly long: string;
@@ -8,15 +10,19 @@ type BaseOptionDefinition = RequireAtLeastOne<{
     readonly description: string;
 };
 
-type RequiredOption<T extends OptionType> = {
+type RequiredOption<T extends OptionTypesWithoutBool> = {
     readonly type: T;
     readonly required: true;
 };
 
-type OptionalOption<T extends OptionType> = {
+type OptionalOption<T extends OptionTypesWithoutBool> = {
     readonly type: T;
     readonly required: false;
     readonly defaultValue?: OptionValue<T>;
+};
+
+type BooleanOption = {
+    readonly type: 'boolean';
 };
 
 type JoinUnions<A,B> = B extends any
@@ -26,7 +32,9 @@ type JoinUnions<A,B> = B extends any
     : A;
 
 type OptionValueTypeToOptionDefinitionVariant<T extends OptionType> =
-    (BaseOptionDefinition & RequiredOption<T>) | (BaseOptionDefinition & OptionalOption<T>)
+    T extends OptionTypesWithoutBool
+        ? (BaseOptionDefinition & RequiredOption<T>) | (BaseOptionDefinition & OptionalOption<T>)
+        : (BaseOptionDefinition & BooleanOption);
 
 type OptionDefinitionFromArray<T extends readonly OptionType[]> =
     T extends readonly [infer F, ...infer R]

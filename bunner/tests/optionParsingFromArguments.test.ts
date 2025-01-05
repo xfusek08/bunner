@@ -112,13 +112,12 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
         expect(res).toEqual({
             options: {
-                foo: undefined,
+                foo: false,
             },
             restArgs: prepareDefaultArguments(),
         });
@@ -133,7 +132,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
@@ -153,13 +151,12 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
         expect(res).toEqual({
             options: {
-                f: undefined,
+                f: false,
             },
             restArgs: prepareDefaultArguments(),
         });
@@ -173,13 +170,12 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
         expect(res).toEqual({
             options: {
-                foo: true,
+                f: true,
             },
             restArgs: prepareDefaultArguments(),
         });
@@ -193,7 +189,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: true
                 },
             ],
         });
@@ -213,7 +208,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: true
                 },
             ],
         });
@@ -233,7 +227,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: true
                 },
             ],
         });
@@ -251,7 +244,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: true
                 },
             ],
         });
@@ -272,7 +264,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: true
                 },
             ],
         });
@@ -293,7 +284,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: true
                 },
             ],
         });
@@ -314,7 +304,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: true
                 },
             ],
         });
@@ -335,7 +324,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: true
                 },
             ],
         });
@@ -357,13 +345,12 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
         expect(res).toEqual({
             options: {
-                foo: undefined,
+                foo: false,
             },
             restArgs: args,
         });
@@ -379,7 +366,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
@@ -400,7 +386,6 @@ describe("Argument Parsing", () => {
                     short: "f",
                     description: "foo",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
@@ -415,25 +400,22 @@ describe("Argument Parsing", () => {
                 short: "f",
                 description: "foo",
                 type: "boolean",
-                required: false
             },
             {
+                short: 'F',
                 long: "foo",
                 description: "foo",
                 type: "boolean",
-                required: false
             },
             {
                 short: "b",
                 description: "bar",
                 type: "boolean",
-                required: false
             },
             {
                 long: "bar",
                 description: "bar",
                 type: "boolean",
-                required: false
             },
         ];
         
@@ -441,7 +423,12 @@ describe("Argument Parsing", () => {
             definitions,
             args: prepareDefaultArguments(),
         })).toEqual({
-            options: {},
+            options: {
+                f: false,
+                foo: false,
+                b: false,
+                bar: false,
+            },
             restArgs: prepareDefaultArguments(),
         });
         
@@ -464,7 +451,34 @@ describe("Argument Parsing", () => {
         })).toEqual({
             options: {
                 f: true,
+                foo: false,
                 b: true,
+                bar: true,
+            },
+            restArgs: prepareDefaultArguments(),
+        });
+        
+        expect(parseArguments({
+            definitions,
+            args: prepareDefaultArguments().replace(["-f", "-F", "-b", "--bar"]),
+        })).toEqual({
+            options: {
+                f: true,
+                foo: true,
+                b: true,
+                bar: true,
+            },
+            restArgs: prepareDefaultArguments(),
+        });
+        
+        expect(parseArguments({
+            definitions,
+            args: prepareDefaultArguments().replace(["-fF", "--bar"]),
+        })).toEqual({
+            options: {
+                f: true,
+                foo: true,
+                b: false,
                 bar: true,
             },
             restArgs: prepareDefaultArguments(),
@@ -475,7 +489,9 @@ describe("Argument Parsing", () => {
             args: prepareDefaultArguments().replace(["--foo", "--bar"]),
         })).toEqual({
             options: {
+                f: false,
                 foo: true,
+                b: false,
                 bar: true,
             },
             restArgs: prepareDefaultArguments(),
@@ -487,6 +503,8 @@ describe("Argument Parsing", () => {
         })).toEqual({
             options: {
                 f: true,
+                foo: false,
+                b: false,
                 bar: true,
             },
             restArgs: prepareDefaultArguments(),
@@ -512,25 +530,21 @@ describe("Argument Parsing", () => {
                 short: "f",
                 description: "foo",
                 type: "boolean",
-                required: true
             },
             {
                 long: "foo",
                 description: "foo",
                 type: "boolean",
-                required: true
             },
             {
                 short: "b",
                 description: "bar",
                 type: "boolean",
-                required: true
             },
             {
                 long: "bar",
                 description: "bar",
                 type: "boolean",
-                required: true
             },
         ];
         
@@ -611,18 +625,146 @@ describe("Argument Parsing", () => {
             },
             restArgs: prepareDefaultArguments().replace(["foo", "bar"]),
         });
-        
-        expect(parseArguments({
-            definitions,
-            args: prepareDefaultArguments().replace(["foo", "-f", "--foo", "bar", "-b", "--bar", "baz"]),
-        })).toEqual([
-            "Unknown option: --baz",
-        ]);
-        
     });
     
     // #endregion
     
+    // #region Condensed Bool Flag Option Tests
+    
+    test("Two condensed optional boolean options", () => {
+        const res = parseArguments({
+            args: prepareDefaultArguments().replace(["-fb"]),
+            definitions: [
+                {
+                    short: "f",
+                    description: "foo",
+                    type: "boolean",
+                },
+                {
+                    short: "b",
+                    description: "bar",
+                    type: "boolean",
+                },
+            ],
+        });
+        expect(res).toEqual({
+            options: {
+                f: true,
+                b: true,
+            },
+            restArgs: prepareDefaultArguments(),
+        });
+    });
+    
+    test("Two condensed optional boolean options with one is undefined", () => {
+        const res = parseArguments({
+            args: prepareDefaultArguments().replace(["-f"]),
+            definitions: [
+                {
+                    short: "f",
+                    description: "foo",
+                    type: "boolean",
+                },
+                {
+                    short: "b",
+                    description: "bar",
+                    type: "boolean",
+                },
+            ],
+        });
+        expect(res).toEqual({
+            options: {
+                f: true,
+                b: false,
+            },
+            restArgs: prepareDefaultArguments(),
+        });
+    });
+    
+    test("Two condensed required boolean options", () => {
+        const res = parseArguments({
+            args: prepareDefaultArguments().replace(["-fb"]),
+            definitions: [
+                {
+                    short: "f",
+                    description: "foo",
+                    type: "boolean",
+                },
+                {
+                    short: "b",
+                    description: "bar",
+                    type: "boolean",
+                },
+            ],
+        });
+        expect(res).toEqual({
+            options: {
+                f: true,
+                b: true,
+            },
+            restArgs: prepareDefaultArguments(),
+        });
+    });
+    
+    test("Boolean option with default true value and capital letters and required value", () => {
+        const definitions: OptionDefinition[] = [
+            {
+                short: "F",
+                long: "foo",
+                description: "foo",
+                type: "boolean",
+            },
+            {
+                short: "f",
+                description: "foo",
+                type: "boolean",
+            },
+            {
+                short: "b",
+                description: "bar",
+                type: "boolean",
+            },
+            {
+                short: "Z",
+                description: "baz",
+                type: "boolean",
+            },
+            {
+                short: "z",
+                long: "zoo",
+                description: "qux",
+                type: "boolean",
+            },
+        ];
+        expect(parseArguments({
+            args: prepareDefaultArguments().replace(["hello", "-FfbZz", "world"]),
+            definitions
+        })).toEqual({
+            options: {
+                foo: true,
+                f: true,
+                b: true,
+                Z: true,
+                zoo: true,
+            },
+            restArgs: prepareDefaultArguments().replace(["hello", "world"]),
+        });
+        
+        expect(parseArguments({
+            args: prepareDefaultArguments().replace(["hello", "-Fz", "world", "foo"]),
+            definitions
+        })).toEqual({
+            options: {
+                foo: true,
+                zoo: true,
+                f: false,
+                Z: false,
+                b: false,
+            },
+            restArgs: prepareDefaultArguments().replace(["hello", "world", "foo"]),
+        });
+    });
+        
     // #region Single String Option Tests
     
     test("Single string option without any argument", () => {
@@ -822,13 +964,13 @@ describe("Argument Parsing", () => {
                     short: "b",
                     description: "bar",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
         expect(res).toEqual({
             options: {
                 foo: "--bar",
+                bar:  false,
             },
             restArgs: prepareDefaultArguments(),
         });
@@ -972,7 +1114,6 @@ describe("Argument Parsing", () => {
                     short: "b",
                     description: "bar",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
@@ -995,7 +1136,7 @@ describe("Argument Parsing", () => {
             ],
         });
         expect(res).toEqual([
-            "Option --foo cannot be set more than once, given values: [\"bar\", \"baz\"]",
+            "Option --foo cannot be set more than once, the current value \"bar\" would be overwritten by -f with value \"baz\"."
         ]);
     });
     
@@ -1013,7 +1154,7 @@ describe("Argument Parsing", () => {
             ],
         });
         expect(res).toEqual([
-            "There was an attempt to set option --foo more than once, but the value was not provided. Values so far: [\"bar\"]",
+            "There was an attempt to set option --foo more than once by option --foo without a value. The current value is \"bar\"."
         ]);
     });
     
@@ -1031,7 +1172,7 @@ describe("Argument Parsing", () => {
             ],
         });
         expect(res).toEqual([
-            "There was an attempt to set option --foo more than once, but the value was not provided. Values so far: [\"bar\"]",
+            "There was an attempt to set option --foo more than once by option -f without a value. The current value is \"bar\"."
         ]);
     });
     
@@ -1266,7 +1407,7 @@ describe("Argument Parsing", () => {
     
     test("Multiple optional string options with default values and long name arguments with equal signs followed by another positional argument", () => {
         const res = parseArguments({
-            args: prepareDefaultArguments().replace(["asd", "--foo=baz", "qux", "--b", "qux", "qux"]),
+            args: prepareDefaultArguments().replace(["asd", "--foo=baz", "qwe", "-b", "qux", "qux"]),
             definitions: [
                 {
                     long: "foo",
@@ -1291,37 +1432,10 @@ describe("Argument Parsing", () => {
                 foo: "baz",
                 baz: "qux",
             },
-            restArgs: prepareDefaultArguments().replace(["asd", "qux", "qux"]),
+            restArgs: prepareDefaultArguments().replace(["asd", "qwe", "qux"]),
         });
     });
     
-    test("Multiple optional string options with default values and long name arguments without values", () => {
-        const res = parseArguments({
-            args: prepareDefaultArguments().replace(["--foo", "--baz"]),
-            definitions: [
-                {
-                    long: "foo",
-                    short: "f",
-                    description: "foo",
-                    type: "string",
-                    required: false,
-                    defaultValue: "bar"
-                },
-                {
-                    long: "baz",
-                    short: "b",
-                    description: "baz",
-                    type: "string",
-                    required: false,
-                    defaultValue: "qux"
-                },
-            ],
-        });
-        expect(res).toEqual([
-            "Option --foo must have a value",
-            "Option --baz must have a value",
-        ]);
-    });
     
     test("Multiple optional string options with default values and long name arguments with empty values", () => {
         const res = parseArguments({
@@ -1855,7 +1969,6 @@ describe("Argument Parsing", () => {
                     short: "b",
                     description: "bar",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
@@ -1894,8 +2007,6 @@ describe("Argument Parsing", () => {
                     short: "b",
                     description: "bar",
                     type: "boolean",
-                    required: false,
-                    defaultValue: true
                 },
             ],
         });
@@ -1934,8 +2045,6 @@ describe("Argument Parsing", () => {
                     short: "b",
                     description: "bar",
                     type: "boolean",
-                    required: false,
-                    defaultValue: true
                 },
             ],
         });
@@ -1974,8 +2083,6 @@ describe("Argument Parsing", () => {
                     short: "b",
                     description: "bar",
                     type: "boolean",
-                    required: false,
-                    defaultValue: true
                 },
             ],
         });
@@ -2009,8 +2116,6 @@ describe("Argument Parsing", () => {
                     short: "b",
                     description: "bar",
                     type: "boolean",
-                    required: false,
-                    defaultValue: true
                 },
             ],
         });
@@ -2047,7 +2152,6 @@ describe("Argument Parsing", () => {
                     short: "b",
                     description: "bar",
                     type: "boolean",
-                    required: false
                 },
             ],
         });
@@ -2058,6 +2162,35 @@ describe("Argument Parsing", () => {
             },
             restArgs: prepareDefaultArguments().replace(["asd", "baz", "qux", "quux"]),
         });
+    });
+    
+    // #endregion
+    
+    // #region Error Cases
+    
+    test("Test condensed flags with non-boolean option", () => {
+        const res = parseArguments({
+            args: prepareDefaultArguments().replace(["-fb"]),
+            definitions: [
+                {
+                    long: "foo",
+                    short: "f",
+                    description: "foo",
+                    type: "string",
+                    required: false
+                },
+                {
+                    long: "bar",
+                    short: "b",
+                    description: "bar",
+                    type: "string",
+                    required: false
+                },
+            ],
+        });
+        expect(res).toEqual([
+            "Option -f must have a value",
+        ]);
     });
     
 });
