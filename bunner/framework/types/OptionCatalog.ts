@@ -27,8 +27,12 @@ export default class OptionCatalog {
         return Object.values(this.options).find(option => option.short === name) ?? null
     }
     
+    public getByIdentifier(identifier: string): Option|null {
+        return this.options[identifier] ?? null;
+    }
+    
     public register(option: Option): void {
-        this.options[option.prettyDashedShortLongName] = option;
+        this.options[option.identifier] = option;
     }
     
     public buildScriptOptions(): ScriptOptions {

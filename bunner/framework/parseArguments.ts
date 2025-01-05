@@ -19,7 +19,7 @@ type ErrorResult = string[];
 
 type Result = SuccessfulResult | ErrorResult;
 
-export default function parseOptions({
+export default function parseArguments({
     args,
     definitions,
 }: Props): Result {

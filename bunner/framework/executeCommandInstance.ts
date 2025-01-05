@@ -4,6 +4,7 @@ import ScriptArguments from "./types/ScriptArguments";
 import executeCommandName from "./executeCommandIName";
 import log from "./log";
 import ProcessRunResultPromise from "./types/ProcessRunResultPromise";
+import parseArguments from "./parseArguments";
 
 export default async function executeCommandInstance({
     command,
@@ -23,12 +24,26 @@ export default async function executeCommandInstance({
     };
     
     try {
-        if (command.hasOptions) {
-            const { options, restArgs } = await parseOptions(scriptArguments, command.optionsDefinition);
-            return await command.action({ args: restArgs, options, runCommand }) ?? 0;
-        } else {
+        if (!command.hasOptions) {
             return await command.action({ args: scriptArguments, runCommand }) ?? 0;
         }
+        
+        const parseResult = await parseArguments({
+            args: scriptArguments,
+            definitions: command.optionsDefinition
+        });
+        
+        if (parseResult instanceof Array) {
+            parseResult.forEach(error => log.error(error));
+            return 1;
+        }
+        
+        const {
+            restArgs,
+            options,
+        } = parseResult;
+        
+        return await command.action({ args: restArgs, options, runCommand }) ?? 0;
     } catch (error: unknown) {
         if (error instanceof Error) {
             log.error(error.message);

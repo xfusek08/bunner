@@ -17,8 +17,8 @@ export default class Option<T extends OptionType = OptionType> {
     
     public static create<T extends OptionType = OptionType>(definition: OptionDefinition, value?: OptionValue<T>): Option {
         return new Option(
-            definition.long ,
-            definition.short ,
+            definition.long,
+            definition.short,
             definition.description,
             definition.type,
             definition.required,
