@@ -1,8 +1,8 @@
 import { CommandDefinition } from "./types/CommandDefinition";
-import { OptionDefinition } from "./types/OptionDefinition";
+import { OptionDefinitions } from "./types/OptionDefinition";
 
 export default function defineCommand<
-    Options extends readonly OptionDefinition[]
+    Options extends OptionDefinitions,
 >(commandDefinition: CommandDefinition<Options>) {
     return commandDefinition;
 }

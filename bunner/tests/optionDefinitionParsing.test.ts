@@ -16,7 +16,13 @@ function OptionDefinitionMatchesOption(definition: OptionDefinition, option: Opt
     expect(option.short as any).toBe(definition.short as any);
     expect(option.description).toBe(definition.description);
     expect(option.type).toBe(definition.type);
-    expect(option.required).toBe(definition.required);
+    
+    if ('required' in definition) {
+        expect(option.required).toBe(definition.required as any);
+    } else {
+        expect(option.required).toBe(false);
+    }
+    
     if ('defaultValue' in definition) {
         expect(option.defaultValue).toBe(definition.defaultValue as any);
     } else {
@@ -49,29 +55,11 @@ const ds: OptionDefinition = {
     defaultValue: "default",
 };
 
-const eb: OptionDefinition = {
-    long: "empty-boolean",
-    short: "eb",
+const b: OptionDefinition = {
+    long: "boolean",
+    short: "b",
     description: "Empty boolean",
     type: "boolean",
-    required: false,
-};
-
-const dbt: OptionDefinition = {
-    long: "default-boolean-true",
-    short: "db",
-    description: "Default boolean true",
-    type: "boolean",
-    required: false,
-    defaultValue: true,
-};
-const dbf: OptionDefinition = {
-    long: "default-boolean-false",
-    short: "db",
-    description: "Default boolean false",
-    type: "boolean",
-    required: false,
-    defaultValue: false,
 };
 
 const end: OptionDefinition = {
@@ -177,7 +165,6 @@ describe("OptionCatalog.fromDefinitions:", () => {
             short: "s",
             description: "short desc",
             type: 'boolean',
-            required: true,
         };
         
         const l: OptionDefinition = {
@@ -217,7 +204,6 @@ describe("OptionCatalog.fromDefinitions:", () => {
             short: "s",
             description: "short desc",
             type: 'boolean',
-            required: true,
         };
         
         const l: OptionDefinition = {
@@ -245,45 +231,36 @@ describe("OptionCatalog.fromDefinitions:", () => {
     });
     
     test("Option default value resolution", () => {
-
-        const c = OptionCatalog.fromDefinitions([es, ds, eb, dbt, dbf, end, dnt]);
+        const c = OptionCatalog.fromDefinitions([es, ds, b, end, dnt]);
         existsValueWithDefinition(c, "empty-string", es);
         existsValueWithDefinition(c, "default-string", ds);
-        existsValueWithDefinition(c, "empty-boolean", eb);
-        existsValueWithDefinition(c, "default-boolean-true", dbt);
-        existsValueWithDefinition(c, "default-boolean-false", dbf);
+        existsValueWithDefinition(c, "boolean", b);
         existsValueWithDefinition(c, "empty-number", end);
         existsValueWithDefinition(c, "default-number-true", dnt);
         
         expect(c.getByIdentifier("empty-string")?.withValue("value").value).toBe("value");
         expect(c.getByIdentifier("default-string")?.withValue("value").value).toBe("value");
-        expect(c.getByIdentifier("empty-boolean")?.withValue(true).value).toBe(true);
-        expect(c.getByIdentifier("default-boolean-true")?.withValue(false).value).toBe(false);
-        expect(c.getByIdentifier("default-boolean-false")?.withValue(true).value).toBe(true);
+        expect(c.getByIdentifier("boolean")?.withValue(true).value).toBe(true);
         expect(c.getByIdentifier("empty-number")?.withValue(2).value).toBe(2);
     });
     
     test(`Script Param Resolution With default options`, () => {
-        const c = OptionCatalog.fromDefinitions([es, ds, eb, dbt, dbf, end, dnt]);
+        const c = OptionCatalog.fromDefinitions([es, ds, b, end, dnt]);
         expect(c.buildScriptOptions()).toEqual({
             "empty-string": undefined,
             "default-string": "default",
-            "empty-boolean": undefined,
-            "default-boolean-true": true,
-            "default-boolean-false": false,
+            "boolean": false,
             "empty-number": undefined,
             "default-number-true": 1,
         });
     });
     
     test(`Script Param Resolution With Custom Values`, () => {
-        const c = OptionCatalog.fromDefinitions([es, ds, eb, dbt, dbf, end, dnt]);
+        const c = OptionCatalog.fromDefinitions([es, ds, b, end, dnt]);
         const expectedObject = {
             "empty-string": undefined as string|undefined,
             "default-string": "default",
-            "empty-boolean": undefined as boolean|undefined,
-            "default-boolean-true": true,
-            "default-boolean-false": false,
+            "boolean": false,
             "empty-number": undefined  as number|undefined,
             "default-number-true": 1,
         };
@@ -292,8 +269,8 @@ describe("OptionCatalog.fromDefinitions:", () => {
         expectedObject['empty-string'] = "value";
         expect(c.buildScriptOptions()).toEqual(expectedObject);
         
-        c.register(c.getByIdentifier("empty-boolean")?.withValue(true)!);
-        expectedObject['empty-boolean'] = true;
+        c.register(c.getByIdentifier("boolean")?.withValue(true)!);
+        expectedObject['boolean'] = true;
         expect(c.buildScriptOptions()).toEqual(expectedObject);
         
         c.register(c.getByIdentifier("empty-number")?.withValue(2)!);
@@ -302,14 +279,6 @@ describe("OptionCatalog.fromDefinitions:", () => {
         
         c.register(c.getByIdentifier("default-string")?.withValue("custom")!);
         expectedObject['default-string'] = "custom";
-        expect(c.buildScriptOptions()).toEqual(expectedObject);
-        
-        c.register(c.getByIdentifier("default-boolean-true")?.withValue(false)!);
-        expectedObject['default-boolean-true'] = false;
-        expect(c.buildScriptOptions()).toEqual(expectedObject);
-        
-        c.register(c.getByIdentifier("default-boolean-false")?.withValue(true)!);
-        expectedObject['default-boolean-false'] = true;
         expect(c.buildScriptOptions()).toEqual(expectedObject);
         
         c.register(c.getByIdentifier("default-number-true")?.withValue(3)!);

@@ -1,6 +1,6 @@
-import OptionValueType from "./OptionValueType";
+import { OptionType } from "./OptionType";
 
-type OptionValue<T extends OptionValueType> =
+type OptionValue<T extends OptionType> =
     T extends 'string' ? string :
     T extends 'number' ? number :
     T extends 'boolean' ? boolean :

@@ -24,13 +24,9 @@ export default async function executeCommandInstance({
     };
     
     try {
-        if (!command.hasOptions) {
-            return await command.action({ args: scriptArguments, runCommand }) ?? 0;
-        }
-        
         const parseResult = await parseArguments({
             args: scriptArguments,
-            definitions: command.optionsDefinition
+            definitions: command.optionsDefinition,
         });
         
         if (parseResult instanceof Array) {
@@ -43,7 +39,7 @@ export default async function executeCommandInstance({
             options,
         } = parseResult;
         
-        return await command.action({ args: restArgs, options, runCommand }) ?? 0;
+        return await command.action({ args: restArgs, options, runCommand, commandCollection }) ?? 0;
     } catch (error: unknown) {
         if (error instanceof Error) {
             log.error(error.message);

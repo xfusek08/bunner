@@ -1,6 +1,6 @@
 import { OptionDefinition, SpecificOptionDefinition} from "./OptionDefinition";
 import OptionValue from "./OptionValue";
-import { OptionType } from "./OptionValueType";
+import { OptionType } from "./OptionType";
 
 export default class Option<T extends OptionType = OptionType> {
     public static readonly OPTION_IDENTIFIER_PROPERTY_NAME_PRIORITY = ['long', 'short'] as const;
@@ -35,7 +35,7 @@ export default class Option<T extends OptionType = OptionType> {
         return [
             this.shortDashedName,
             this.longDashedName,
-        ].filter(Boolean).join("   ");
+        ].filter(Boolean).join(" ");
     }
     
     public get shortDashedName(): string {
@@ -93,7 +93,7 @@ export default class Option<T extends OptionType = OptionType> {
         if (this.isType('number')) {
             const parsed = Number(value);
             if (Number.isNaN(parsed)) {
-                return new Error(`Option ${this.prettyDashedShortLongName} must be a number`);
+                return new Error(`Option ${this.dashedIdentifier} must be a valid number representation. Received: "${value}"`);
             }
             return parsed as OptionValue<T>;
         }

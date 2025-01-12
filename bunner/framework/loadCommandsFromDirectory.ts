@@ -1,9 +1,8 @@
-
-import { $ } from "bun";
-import CommandDefinition from "./types/CommandDefinition";
+import { readdir } from "fs/promises";
 import Command from "./types/Command";
 import CategoryDescription from "./types/CategoryDescription";
 import log from "./log";
+import { CommandDefinition } from "./types/CommandDefinition";
 
 export default async function loadCommandsFromDirectory({
     directory,
@@ -12,17 +11,15 @@ export default async function loadCommandsFromDirectory({
     directory: string,
     defaultCategory?: null|string|CategoryDescription,
 }) {
-    const { stdout } = await $`ls ${directory}`;
-    const commandFiles = stdout.toString().split('\n');
+    const commandFiles = await readdir(directory);
     
     const res: Command[] = [];
-    
     for (const commandFile of commandFiles) {
         if (commandFile === '') {
             continue;
         }
         const { default: commandRaw } = await import(`${directory}/${commandFile}`);
-        let definition = commandRaw as CommandDefinition;
+        let definition = commandRaw as CommandDefinition<undefined>;
         if (defaultCategory !== null && !('category' in definition)) {
             definition = { ...definition, category: defaultCategory };
         }

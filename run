@@ -1,10 +1,13 @@
 #!/bin/bash
 
-WORK_DIR=$(pwd)
-BUN_EXEC=$(realpath "./bunner/bun")
-ENTRY_FILE=$(realpath "./bunner/entry.ts")
+source ./bunner/run_in_bun_docker.sh
 
-out=$($BUN_EXEC "$ENTRY_FILE" $@)
+out=$(
+    cd ./bunner
+    WORK_DIR=$(pwd)
+    run_in_bun_docker entry.ts $@
+)
+
 res=$?
 
 if [ $res -eq 4 ]; then

@@ -68,7 +68,7 @@ export default class CommandCollection {
             categories[id] = {
                 categoryDescription: description,
                 commands: {
-                    ...(categories[id].commands ?? {}),
+                    ...(categories[id]?.commands ?? {}),
                     [command.command]: command,
                 },
             };

@@ -1,4 +1,4 @@
-import { OptionDefinition } from "./OptionDefinition";
+import { OptionDefinition, OptionDefinitions } from "./OptionDefinition";
 import Option from "./Option";
 import ScriptOptions from "./ScriptOptions";
 
@@ -13,7 +13,7 @@ export default class OptionCatalog {
         return catalog;
     }
     
-    public static fromDefinitions(definitions: OptionDefinition[]): OptionCatalog {
+    public static fromDefinitions(definitions: OptionDefinitions): OptionCatalog {
         const catalog = new OptionCatalog({});
         definitions.forEach(definition => catalog.register(Option.create(definition)));
         return catalog;
@@ -40,5 +40,9 @@ export default class OptionCatalog {
             acc[option.identifier] = option.value;
             return acc;
         }, {} as ScriptOptions);
+    }
+    
+    public iterate(): Iterable<Option> {
+        return Object.values(this.options);
     }
 }

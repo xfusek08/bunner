@@ -1,7 +1,7 @@
 import CommandCollection from "./types/CommandCollection";
 import ScriptArguments from "./types/ScriptArguments";
 import log from "./log";
-import executeCommand from "./executeCommandInstance";
+import executeCommandInstance from "./executeCommandInstance";
 import ProcessRunResultPromise from "./types/ProcessRunResultPromise";
 
 export default async function executeCommandFromArguments({
@@ -21,7 +21,7 @@ export default async function executeCommandFromArguments({
         if (fallbackCommandName) {
             const fallbackCommand = commandCollection.get(fallbackCommandName);
             if (fallbackCommand) {
-                await executeCommand({
+                await executeCommandInstance({
                     command: fallbackCommand,
                     commandCollection: commandCollection,
                     scriptArguments: scriptArguments.clear(),
@@ -31,7 +31,7 @@ export default async function executeCommandFromArguments({
         return 1;
     }
     
-    return await executeCommand({
+    return await executeCommandInstance({
         command,
         commandCollection,
         scriptArguments: restCommandArgs,

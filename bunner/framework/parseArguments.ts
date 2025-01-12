@@ -1,13 +1,13 @@
 
 import OptionCatalog from "./types/OptionCatalog";
-import { OptionDefinition } from "./types/OptionDefinition";
+import { OptionDefinitions } from "./types/OptionDefinition";
 import Option from "./types/Option";
 import ScriptArguments from "./types/ScriptArguments";
 import ScriptOptions from "./types/ScriptOptions";
 
 type Props = {
     args: ScriptArguments,
-    definitions: OptionDefinition[],
+    definitions: OptionDefinitions,
 };
 
 type SuccessfulResult = {
@@ -80,9 +80,12 @@ export default function parseArguments({
         return;
     };
     
+    // Process arguments
+    
     while (workingArgs.length > 0) {
         let arg = workingArgs.shift()!;
         
+        // Check for --option=value
         if (arg.startsWith('--') && arg.includes('=')) {
             const [name, value] = arg.slice(2).split('=');
             const defaultOption = optionCatalog.getByLongName(name);
@@ -94,6 +97,7 @@ export default function parseArguments({
             continue;
         }
         
+        // Check for --option value
         if (arg.startsWith('--') && arg.length > 2) {
             const name = arg.slice(2);
             const defaultOption = optionCatalog.getByLongName(name);
@@ -105,12 +109,13 @@ export default function parseArguments({
             continue;
         }
         
-        // allow -- to be a valid positional argument
+        // -- is a valid positional argument
         if (arg.startsWith('--')) {
             positionalArgs.push(arg);
             continue;
         }
         
+        // Check for -o=value
         if (arg.startsWith('-') && arg.includes('=')) {
             const [name, value] = arg.slice(1).split('=');
             const defaultOption = optionCatalog.getByShortName(name);
@@ -122,6 +127,7 @@ export default function parseArguments({
             continue;
         }
         
+        // Check for -o [value]
         if (arg.startsWith('-') && arg.length === 2) {
             const shortNames = arg.slice(1);
             const defaultOption = optionCatalog.getByShortName(shortNames);
@@ -133,6 +139,7 @@ export default function parseArguments({
             continue;
         }
         
+        // Check for -abc (condensed flags)
         if (arg.startsWith('-') && arg.length > 2) {
             const shortNames = arg.slice(1);
             shortNames.split('').forEach((shortName) => {
@@ -154,6 +161,14 @@ export default function parseArguments({
         positionalArgs.push(arg);
     }
     
+    // Check for required options
+    for (const option of optionCatalog.iterate()) {
+        if (option.required && !option.isValueSet) {
+            errors.push(`Option ${option.prettyDashedShortLongName} is required`);
+        }
+    }
+    
+    // Check for errors
     if (errors.length > 0) {
         return errors;
     }

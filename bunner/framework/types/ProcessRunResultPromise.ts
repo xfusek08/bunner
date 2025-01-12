@@ -1,4 +1,4 @@
 
-type ProcessRunResultPromise = ProcessRunResultPromise;
+type ProcessRunResultPromise = never|Promise<number|void>;
 
 export default ProcessRunResultPromise;

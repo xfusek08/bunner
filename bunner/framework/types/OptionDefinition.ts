@@ -1,5 +1,5 @@
 import OptionValue from "./OptionValue";
-import { OptionType, OptionTypes } from "./OptionValueType";
+import { OptionType, OptionTypes } from "./OptionType";
 
 type OptionTypesWithoutBool = Exclude<OptionType, 'boolean'>;
 
@@ -51,6 +51,8 @@ type OptionDefinitionFromArray<T extends readonly OptionType[]> =
 export type SpecificOptionDefinition<T extends OptionType> = OptionDefinitionFromArray<[T]>;
 
 export type OptionDefinition = OptionDefinitionFromArray<OptionTypes>;
+
+export type OptionDefinitions = readonly OptionDefinition[];
 
 export function isOptionOfType<T extends OptionType>(definition: OptionDefinition, type: T): definition is SpecificOptionDefinition<T> {
     return definition.type === type;

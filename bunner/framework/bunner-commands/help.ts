@@ -8,8 +8,8 @@ export default defineCommand({
         id: 'special-command',
         title: 'Special System Commands',
     },
-    action: async () => {
-        console.log('Initializing the bunner project...');
-        process.exit(1);
+    action: async ({ commandCollection  }) => {
+        console.log(commandCollection.allCommands);
+        return 0;
     }
 });
