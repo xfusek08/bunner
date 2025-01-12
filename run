@@ -1,0 +1,19 @@
+#!/bin/bash
+
+source ./bunner/run_in_bun_docker.sh
+
+out=$(
+    cd ./bunner
+    WORK_DIR=$(pwd)
+    run_in_bun_docker entry.ts $@
+)
+
+res=$?
+
+if [ $res -eq 4 ]; then
+    cmd=$(echo "$out" | tr -d '\r')
+    $cmd
+else
+    echo "$out"
+    exit $res
+fi
