@@ -17,7 +17,7 @@ export type ExtractParsedOptionValueType<
     V = OptionValue<ExtractOptionType<D>>
 > =
     IsBooleanOption<D> extends true
-        ? V
+        ? boolean
         : HasDefaultValue<D> extends true
             ? V
             : IsRequired<D> extends true

@@ -2,9 +2,12 @@
 
 source ./bunner/run_in_bun_docker.sh
 
+export COLUMNS=$(tput cols)
+export LINES=$(tput lines)
+
 out=$(
     cd ./bunner
-    WORK_DIR=$(pwd)
+    export WORK_DIR=$(pwd)
     run_in_bun_docker entry.ts $@
 )
 

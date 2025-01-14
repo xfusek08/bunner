@@ -1,7 +1,7 @@
 import defineCommand from "../framework/defineCommand";
 
 export default defineCommand({
-    command: 'greet',
+    command: 'hello',
     description: 'Prints given text to the console a given number of times. If no text is given, it will print \"Hello World!\"',
     options: [
         {

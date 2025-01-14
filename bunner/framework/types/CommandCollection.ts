@@ -1,37 +1,57 @@
 import Command from "./Command";
 import CategoryDescription from "./CategoryDescription";
 
-type CommandCategoryCatalog = Record<string, {
-    categoryDescription?: CategoryDescription,
-    commands: Record<string, Command>,
-}>;
+export interface CategoryIteratorItem {
+    id: string;
+    title: string;
+    commands: Command[];
+}
+
+type CommandMap = Record<string, Command>;
+
+type CommandCategoryCatalogRecord = {
+    categoryDescription: CategoryDescription;
+    commands: CommandMap;
+};
+
+type CommandCategoryCatalog = Record<string, CommandCategoryCatalogRecord>;
 
 export default class CommandCollection {
     
     private constructor(
-        private readonly commandsByCategory: CommandCategoryCatalog,
+        private readonly _unsortedCommands: CommandMap,
+        private readonly _commandsByCategory: CommandCategoryCatalog,
     ) {}
     
     public static create(commands: Command[]): CommandCollection {
-        return new CommandCollection(
-            this.sortToCategories(commands)
-        );
+        const {
+            unsortedCommands,
+            commandsByCategory,
+        } = this.sortToCategories(commands);
+        
+        return new CommandCollection(unsortedCommands, commandsByCategory);
     }
     
     public static merge(...collections: CommandCollection[]): CommandCollection {
-        return new CommandCollection(
-            this.sortToCategories(
-                collections.flatMap(collection => collection.allCommands)
-            )
-        );
+        const {
+            unsortedCommands,
+            commandsByCategory,
+        } = this.sortToCategories(collections.flatMap(collection => collection.allCommands));
+        
+        return new CommandCollection(unsortedCommands, commandsByCategory);
     }
     
     public get(command: string): Command|null {
-        for (const category of Object.values(this.commandsByCategory)) {
+        if (command in this._unsortedCommands) {
+            return this._unsortedCommands[command];
+        }
+        
+        for (const category of Object.values(this._commandsByCategory)) {
             if (command in category.commands) {
                 return category.commands[command];
             }
         }
+        
         return null;
     }
     
@@ -39,40 +59,54 @@ export default class CommandCollection {
         return this.get(command) !== null;
     }
     
-    public get allCommands(): Command[] {
-        return Object.values(this.commandsByCategory).flatMap(category => Object.values(category.commands));
+    public get allCommands(): readonly Command[] {
+        return [
+            ...this.unsortedCommands,
+            ...Object.values(this._commandsByCategory).flatMap((c) => Object.values(c.commands)),
+        ];
     }
-        
     
-    private static sortToCategories(commands: Command[]): CommandCategoryCatalog {
-        const categories: CommandCategoryCatalog = {
-            // default category
-            '': {
-                commands: {},
-            },
-        };
+    public get unsortedCommands(): readonly Command[] {
+        return Object.values(this._unsortedCommands);
+    }
+    
+    public get categories(): readonly CategoryIteratorItem[] {
+        return Object.values(this._commandsByCategory)
+            .map((r) => ({
+                id: r.categoryDescription.id,
+                title: r.categoryDescription.title,
+                commands: Object.values(r.commands),
+            }));
+    }
+    
+    private static sortToCategories(commands: Command[]) {
+        const unsortedCommands: CommandMap = {};
+        const commandsByCategory: CommandCategoryCatalog = {};
+        
         for (const command of commands) {
             const commandCategory = command.category;
             
-            // if no category is specified, add to default category
             if (commandCategory === null) {
-                categories[''].commands[command.command] = command;
+                unsortedCommands[command.command] = command;
                 continue;
             }
             
             const [id, description]: [string, CategoryDescription|undefined] =
                 typeof commandCategory === 'string'
-                    ? [commandCategory, categories[commandCategory]?.categoryDescription]
+                    ? [commandCategory, commandsByCategory[commandCategory]?.categoryDescription]
                     : [commandCategory.id, commandCategory];
                 
-            categories[id] = {
+            commandsByCategory[id] = {
                 categoryDescription: description,
                 commands: {
-                    ...(categories[id]?.commands ?? {}),
+                    ...(commandsByCategory[id]?.commands ?? {}),
                     [command.command]: command,
                 },
             };
         }
-        return categories;
+        return {
+            unsortedCommands,
+            commandsByCategory,
+        };
     }
 }
