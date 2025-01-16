@@ -19,13 +19,16 @@ async function printGeneralHelp(commandCollection: CommandCollection) {
     tb.unindent();
 
     tb.line();
-    tb.line(Formatter.formatTitle('Available commands:'));
-    tb.indent();
-        commandCollection.unsortedCommands.forEach((c) => {
-            tb.line(Formatter.formatCommandSingleLine(c));
-        });
-    tb.unindent();
-    tb.line();
+    
+    if (commandCollection.unsortedCommands.length > 0) {
+        tb.line(Formatter.formatTitle('Available commands:'));
+        tb.indent();
+            commandCollection.unsortedCommands.forEach((c) => {
+                tb.line(Formatter.formatCommandSingleLine(c));
+            });
+        tb.unindent();
+        tb.line();
+    }
     commandCollection.categories.forEach((c) => {
         Formatter.formatCategory(tb, c);
         tb.line();

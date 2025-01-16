@@ -1,14 +1,18 @@
 #!/bin/sh
 
-# Detect current shell
-CURRENT_SHELL=$(basename "$SHELL")
+# Detect bun and run it write pretty error when bun is not found
 
-if [ "$CURRENT_SHELL" = "zsh" ]; then
-    exec "$(dirname "$0")/bunner/run-zsh" "$@"
-elif [ "$CURRENT_SHELL" = "bash" ]; then
-    exec "$(dirname "$0")/bunner/run-bash" "$@"
-else
-    echo "Unsupported shell: $CURRENT_SHELL"
-    echo "Please use bash or zsh"
+# Define colors
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Check if bun is installed
+which bun >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo -e "${RED}❌ bun could not be found${NC}"
+    echo -e "💡 Please install bun by running '${RED}npm install -g bun${NC}'"
     exit 1
 fi
+
+# Run bun
+bun bunner/entry.ts $@

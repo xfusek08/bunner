@@ -37,11 +37,12 @@ export default class Formatter {
     }
     
     public static formatCategory(tb: TextBuilder, category: CategoryIteratorItem) {
-        tb.line(this.formatTitle(category.title));
+        tb.line(this.formatTitle(category.title) + ':');
         tb.indent();
         this.formatCommandList(tb, Object.values(category.commands));
+        tb.unindent();
     }
-        
+    
     public static formatCommandOptionList(tb: TextBuilder, command: Command) {
         for (const optionDef of command.optionsDefinition) {
             this.formatOption(tb, Option.create(optionDef));
