@@ -1,6 +1,0 @@
-#!/bin/bash
-
-directory=$(dirname "$BASH_SOURCE")
-source "$directory/run_in_bun_docker.sh"
-
-run_in_bun_docker bun "$@"

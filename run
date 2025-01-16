@@ -1,22 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 
-source ./bunner/run_in_bun_docker.sh
+# Detect current shell
+CURRENT_SHELL=$(basename "$SHELL")
 
-export COLUMNS=$(tput cols)
-export LINES=$(tput lines)
-
-out=$(
-    cd ./bunner
-    export WORK_DIR=$(pwd)
-    run_in_bun_docker entry.ts $@
-)
-
-res=$?
-
-if [ $res -eq 4 ]; then
-    cmd=$(echo "$out" | tr -d '\r')
-    $cmd
+if [ "$CURRENT_SHELL" = "zsh" ]; then
+    exec "$(dirname "$0")/bunner/run-zsh" "$@"
+elif [ "$CURRENT_SHELL" = "bash" ]; then
+    exec "$(dirname "$0")/bunner/run-bash" "$@"
 else
-    echo "$out"
-    exit $res
+    echo "Unsupported shell: $CURRENT_SHELL"
+    echo "Please use bash or zsh"
+    exit 1
 fi

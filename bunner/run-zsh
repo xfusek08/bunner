@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+# Setup zsh completion system if not already initialized
+autoload -U compinit
+if [[ ! -v ZSH_COMPDUMP ]]; then
+    compinit -d "$HOME/.zcompdump"
+fi
+
+# source .zshrc if exists
+if [ -f ~/.zshrc ]; then
+    source ~/.zshrc
+fi
+
+# source ./run-bun.sh
+source $(dirname "$0")/run-bun.sh
