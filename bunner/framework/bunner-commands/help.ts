@@ -13,22 +13,25 @@ async function printGeneralHelp(commandCollection: CommandCollection) {
     tb.line();
     tb.line(Formatter.formatTitle('Usage:'));
     tb.indent();
+        tb.line();
         tb.aligned([`${Formatter.formatCommandName('./run')} ${Formatter.formatCommandDescription('[command]')} ${Formatter.formatCommandDescription('[options]')}`]);
+        tb.line();
         tb.aligned([`${Formatter.formatCommandName('./run help')}`, 'Show this help message']);
+        tb.line();
         tb.aligned([`${Formatter.formatCommandName('./run help')} ${Formatter.formatCommandDescription('[cmd]')}`, 'Show help for specific command']);
     tb.unindent();
-
+        
     tb.line();
-    
+    tb.separator();
+    tb.line();
+    tb.line(Formatter.formatTitle('Available commands:'));
+    tb.indent();
     if (commandCollection.unsortedCommands.length > 0) {
-        tb.line(Formatter.formatTitle('Available commands:'));
-        tb.indent();
-            commandCollection.unsortedCommands.forEach((c) => {
-                tb.line(Formatter.formatCommandSingleLine(c));
-            });
-        tb.unindent();
-        tb.line();
+        commandCollection.unsortedCommands.forEach((c) => {
+            tb.line(Formatter.formatCommandSingleLine(c));
+        });
     }
+    tb.line();
     commandCollection.categories.forEach((c) => {
         Formatter.formatCategory(tb, c);
         tb.line();

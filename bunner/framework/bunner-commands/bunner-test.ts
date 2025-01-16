@@ -6,7 +6,7 @@ export default defineCommand({
     description: 'Test the bunner project',
     action: async () => {
         console.log("process.stdout.columns", process.stdout.columns);
-        console.log("process.env.COLUMNS", process.env.COLUMNS);
+        console.log(process.env);
         await $`echo $COLUMNS`;
     }
 });

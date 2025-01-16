@@ -1,5 +1,4 @@
 import TextTable from "../TextTable";
-import getTerminalWidth from "../utils/getTerminalWidth";
 
 export default class TextBuilder {
     private _mode: 'line' | TextTable = 'line';
@@ -16,7 +15,7 @@ export default class TextBuilder {
     
     constructor(indentSize: number = 4) {
         this._indentSize = indentSize;
-        this._terminalWidth = getTerminalWidth();
+        this._terminalWidth = process.stdout.columns;
     }
     
     public line(text?: string) {
@@ -26,6 +25,12 @@ export default class TextBuilder {
     
     public aligned(row: string[]) {
         this.asTable().pushRow(row);
+    }
+    
+    public separator(variant: 'single' | 'double' = 'single') {
+        this.endTable();
+        const char = variant === 'single' ? '-' : '=';
+        this._lines.push(char.repeat(this.availableWidth));
     }
     
     public indent() {
