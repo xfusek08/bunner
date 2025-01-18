@@ -1,4 +1,4 @@
-import TextBuilder from "../TextBuilder/TextBuilder";
+import TextBuilder from "../text-rendering/TextBuilder";
 import Command from "../types/Command";
 import { CategoryIteratorItem } from "../types/CommandCollection";
 import Option from "../types/Option";

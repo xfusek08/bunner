@@ -1,4 +1,4 @@
-import TextTable from "../TextTable";
+import TextTable from "../table/TextTable";
 
 export default class TextBuilder {
     private _mode: 'line' | TextTable = 'line';

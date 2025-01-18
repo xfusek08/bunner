@@ -1,7 +1,7 @@
 import BunnerConst from "../const";
 import defineCommand from "../defineCommand";
 import Formatter from "../Formatter";
-import TextBuilder from "../TextBuilder";
+import TextBuilder from "../text-rendering/TextBuilder";
 import Command from "../types/Command";
 import CommandCollection from "../types/CommandCollection";
 

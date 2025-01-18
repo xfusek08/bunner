@@ -38,6 +38,7 @@ export default defineCommand({
             console.log(`${options.prefix ?? ""}${options.text}`);
         }
         
+        
         if (options.polite) {
             console.log("Have a nice day!");
         }
