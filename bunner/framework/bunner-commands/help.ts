@@ -8,6 +8,7 @@ import CommandCollection from "../types/CommandCollection";
 async function printGeneralHelp(commandCollection: CommandCollection) {
     const tb = new TextBuilder();
     
+    console.time('defined');
     tb.line();
     tb.line(Formatter.withColorHex('Bunner - A Bun-based CLI Application Framework', Formatter.WHITE));
     tb.line();
@@ -37,7 +38,11 @@ async function printGeneralHelp(commandCollection: CommandCollection) {
         tb.line();
     });
     tb.line(); // Add empty line at the end
-    console.log(tb.render());
+    console.timeEnd('defined');
+    console.time('render');
+    const res = tb.render();
+    console.timeEnd('render');
+    console.log(res);
     return 0;
 }
 

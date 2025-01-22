@@ -13,10 +13,27 @@ export default class Cell {
         return new Cell(content, width);
     }
     
-    public get rows(): string[] {
-        return this._cache.cached("rows", () => {
-            return this.tokenRows.map((row) => row.join(""));
+    public withWidth(width: number): Cell {
+        return Cell.create(this.content, width);
+    }
+    
+    public getRow(index: number, pad: boolean = true): string {
+        return this._cache.cached(`rows-${index}`, () => {
+            const tokens = this.tokenRows[index];
+            
+            if (!tokens) {
+                return " ".repeat(this.width);
+            }
+            
+            return tokens
+                .map((token) => token.content)
+                .join("")
+                .padEnd(this.width, " ");
         });
+    }
+    
+    public get rowCount(): number {
+        return this.tokenRows.length;
     }
     
     public get minimalCell(): Cell {
@@ -27,9 +44,7 @@ export default class Cell {
     }
     
     public get tokenRows(): Token[][] {
-        return this._cache.cached("tokenRows", () => {
-            return Cell.stringToTokenRows(this.content, this.width);
-        });
+        return this._cache.cached("tokenRows", () => Cell.stringToTokenRows(this.content, this.width));
     }
     
     public eachToken(): Token[] {
@@ -49,7 +64,7 @@ export default class Cell {
             let token: Token|undefined;
             
             while(token = currentRealRow.shift()) {
-                if (currentRowWidth + token.width < width) {
+                if (currentRowWidth + token.width <= width) {
                     currentRow.push(token);
                     currentRowWidth += token.width;
                     continue;
@@ -58,7 +73,7 @@ export default class Cell {
                 // --- Wrap ---
                 
                 if (!token.isSingleSpace) {
-                    currentRealRow.unshift(token); // omit trailing one-space token it is replaced by implied new line symbol
+                    currentRealRow.unshift(token); // place overflowing token to the next row, if it is not a space
                 }
                 
                 realRows.unshift(currentRealRow); // palce back the rest of the row

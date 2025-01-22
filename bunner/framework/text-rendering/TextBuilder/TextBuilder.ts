@@ -13,9 +13,18 @@ export default class TextBuilder {
     public get indentChart() { return this._indentSize * this._indentLevel; }
     public get availableWidth() { return this._terminalWidth - this.indentChart; }
     
-    constructor(indentSize: number = 4) {
+    constructor({
+        indentSize = 4,
+        width = process.stdout.columns,
+    }: {
+        indentSize?: number,
+        width?: number
+    } = {}) {
         this._indentSize = indentSize;
-        this._terminalWidth = process.stdout.columns;
+        this._terminalWidth = width ?? process.stdout.columns;
+        if (isNaN(this._terminalWidth)) {
+            this._terminalWidth = 80;
+        }
     }
     
     public line(text?: string) {
