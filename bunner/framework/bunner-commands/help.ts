@@ -1,9 +1,11 @@
 import BunnerConst from "../const";
 import defineCommand from "../defineCommand";
+import executeCommandInstance from "../executeCommandInstance";
 import Formatter from "../Formatter";
 import TextBuilder from "../text-rendering/TextBuilder";
 import Command from "../types/Command";
 import CommandCollection from "../types/CommandCollection";
+import ScriptArguments from "../types/ScriptArguments";
 
 async function printGeneralHelp(commandCollection: CommandCollection) {
     const tb = new TextBuilder();
@@ -53,7 +55,7 @@ async function printHelpForSpecificCommand(command: Command) {
     return 0;
 }
 
-export default defineCommand({
+const d = defineCommand({
     command: BunnerConst.HELP_COMMAND,
     description: 'Prints help message',
     category: {
@@ -75,3 +77,18 @@ export default defineCommand({
         return printGeneralHelp(commandCollection);
     }
 });
+
+export default d;
+
+// run help anually if file is directly executed
+if (require.main === module) {
+    const command = Command.fromDefinition(d);
+    if (command instanceof Command) {
+        const commandCollection = CommandCollection.create([command]);
+        executeCommandInstance({
+            command,
+            commandCollection,
+            scriptArguments: ScriptArguments.initFromProcessArgv()
+        });
+    }
+}

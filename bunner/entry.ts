@@ -28,8 +28,8 @@ const userCommandCollection = CommandCollection.create(
 );
 
 const commandCollection = CommandCollection.merge(
+    userCommandCollection,
     bunnerCommandsCollection,
-    userCommandCollection
 );
 
 const errorCode = await executeCommandFromArguments({

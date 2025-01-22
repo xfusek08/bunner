@@ -48,4 +48,17 @@ export default class ScriptArguments {
     public clear() {
         return this.replace([]);
     }
+    
+    public getString(pos: number): string|null;
+    public getString(pos: number, defaultValue: string): string;
+    public getString(pos: number, defaultValue: string|null = null): string|null {
+        if (pos >= this.args.length) {
+            return defaultValue;
+        }
+        const val = this.args[pos];
+        if (typeof val !== 'string') {
+            return defaultValue;
+        }
+        return val;
+    }
 }

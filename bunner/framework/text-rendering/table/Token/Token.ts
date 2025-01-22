@@ -1,10 +1,24 @@
+import { visualLength } from "../../../utils/string";
+
 export default class Token {
     private constructor(
         public readonly content: string,
         public readonly width: number,
-        public readonly isSingleSpace: boolean,
     ) {}
+
+    public static create(content: string): Token {
+        return new Token(content, visualLength(content));
+    }
+
+    public get isSingleSpace(): boolean {
+        return this.width === 1 && this.content.trim() === '';
+    }
     
+    public get isWhite(): boolean {
+        return this.content.trim() === '';
+    }
+        
+
     /**
      *                                ' '
      *                                [A]
@@ -35,50 +49,8 @@ export default class Token {
      *   [P space] = push space Token
      *   [P word] = push word Token
      */
-    public static tokenize(content: string): Token[] {
-        const res: Token[] = [];
-        
-        let state: 'space' | 'word' | 'initial' = 'initial';
-        let currentWord = '';
-        
-        for (let char of content) {
-            switch (state) {
-                case 'initial':
-                    if (char === ' ') {
-                        state = 'space';
-                    } else {
-                        state = 'word';
-                    }
-                    currentWord += char;
-                    break;
-                case 'space':
-                    if (char === ' ') {
-                        currentWord += char;
-                        state = 'space';
-                    } else {
-                        res.push(new Token(currentWord, currentWord.length, true));
-                        currentWord = char;
-                        state = 'word';
-                    }
-                    break;
-                case 'word':
-                    if (char === ' ') {
-                        res.push(new Token(currentWord, currentWord.length, false));
-                        currentWord = char;
-                        state = 'space';
-                    } else {
-                        currentWord += char;
-                        state = 'word';
-                    }
-                    break;
-            }
-        }
-        
-        if (currentWord) {
-            res.push(new Token(currentWord, currentWord.length, state === 'space'));
-        }
-        
-        return res;
+    public static tokenize(text: string): Token[] {
+        return text.split(/(\s+)/g).filter(s => s.length > 0).map(Token.create);
     }
     
     public toString(): string {
