@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "eslint: lint whole folder",
+            "command": "docker run --rm -v ${workspaceFolder}/bunner:/app -w /app oven/bun bun eslint .",
+            "problemMatcher": {
+                "owner": "eslint",
+                "fileLocation": ["relative", "${workspaceFolder}/bunner"],
+                "pattern": [
+                    {
+                        "regexp": "^/app/(.*)$",
+                        "file": 1
+                    },
+                    {
+                        "regexp": "^\\s+(\\d+):(\\d+)\\s+(error|warning|info)\\s+(.*?)(?:\\s{2,}(.*))?$",
+                        "line": 1,
+                        "column": 2,
+                        "severity": 3,
+                        "message": 4,
+                        "code": 5,
+                        "loop": true
+                    }
+                ]
+            },
+            "presentation": {
+                "reveal": "never",
+                "panel": "shared"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "runOptions": {
+                "runOn": "folderOpen",
+                "reevaluateOnRerun": true
+            }
+        }
+    ]
+}

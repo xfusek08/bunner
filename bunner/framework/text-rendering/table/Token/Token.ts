@@ -1,4 +1,4 @@
-import { visualLength } from "../../../utils/string";
+import { visualLength } from '../../../utils/string';
 
 export default class Token {
     private constructor(
@@ -13,11 +13,10 @@ export default class Token {
     public get isSingleSpace(): boolean {
         return this.width === 1 && this.content.trim() === '';
     }
-    
+
     public get isWhite(): boolean {
         return this.content.trim() === '';
     }
-        
 
     /**
      *                                ' '
@@ -50,9 +49,12 @@ export default class Token {
      *   [P word] = push word Token
      */
     public static tokenize(text: string): Token[] {
-        return text.split(/(\s+)/g).filter(s => s.length > 0).map(Token.create);
+        return text
+            .split(/(\s+)/g)
+            .filter((s) => s.length > 0)
+            .map(Token.create);
     }
-    
+
     public toString(): string {
         return this.content;
     }

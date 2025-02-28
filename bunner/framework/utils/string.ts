@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-control-regex
 const ANSI_ESCAPE_PATTERN = /\u001b\[\d+m|\u001b\[0m/g;
 
 export function visualLength(str: string): number {

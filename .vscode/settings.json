@@ -1,0 +1,29 @@
+{
+    "cSpell.words": [
+        "boolval",
+        "bunner",
+        "bytovio",
+        "getopt",
+        "lockb",
+        "realpath"
+    ],
+    "workbench.colorCustomizations": {
+        "sash.hoverBorder": "#a3272c",
+        "statusBar.background": "#7a1d21",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#a3272c",
+        "statusBarItem.remoteBackground": "#7a1d21",
+        "statusBarItem.remoteForeground": "#e7e7e7"
+    },
+    "peacock.color": "#7a1d21",
+    "triggerTaskOnSave.selectedTask": "eslint: lint whole folder",
+    "task.saveBeforeRun": "always",
+    "triggerTaskOnSave.on": true,
+    "triggerTaskOnSave.restart": true,
+    "triggerTaskOnSave.showNotifications": false,
+    "triggerTaskOnSave.showStatusBarToggle": false,
+    "triggerTaskOnSave.tasks": {
+        "eslint: lint whole folder": ["*.js", "*.jsx", "*.ts", "*.tsx"]
+    },
+    "triggerTaskOnSave.delay": 1000
+}

@@ -1,19 +1,19 @@
-import CommandCollection from "./types/CommandCollection";
-import ScriptArguments from "./types/ScriptArguments";
-import log from "./log";
-import executeCommandInstance from "./executeCommandInstance";
-import ProcessRunResultPromise from "./types/ProcessRunResultPromise";
+import executeCommandInstance from './executeCommandInstance';
+import log from './log';
+import CommandCollection from './types/CommandCollection';
+import ProcessRunResultPromise from './types/ProcessRunResultPromise';
+import ScriptArguments from './types/ScriptArguments';
 
 export default async function executeCommandName({
     commandName,
     scriptArguments,
     commandCollection,
     fallbackCommandName,
-}:{
-    commandName: string,
-    scriptArguments: ScriptArguments,
-    commandCollection: CommandCollection,
-    fallbackCommandName?: string,
+}: {
+    commandName: string;
+    scriptArguments: ScriptArguments;
+    commandCollection: CommandCollection;
+    fallbackCommandName?: string;
 }): ProcessRunResultPromise {
     const command = commandCollection.get(commandName ?? '');
     if (!command) {
@@ -30,10 +30,12 @@ export default async function executeCommandName({
         }
         return 1;
     }
-    
-    return await executeCommandInstance({
-        command,
-        commandCollection,
-        scriptArguments,
-    }) ?? 0;
+
+    return (
+        (await executeCommandInstance({
+            command,
+            commandCollection,
+            scriptArguments,
+        })) ?? 0
+    );
 }

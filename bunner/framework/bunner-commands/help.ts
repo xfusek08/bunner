@@ -1,29 +1,42 @@
-import BunnerConst from "../const";
-import defineCommand from "../defineCommand";
-import executeCommandInstance from "../executeCommandInstance";
-import Formatter from "../Formatter";
-import TextBuilder from "../text-rendering/TextBuilder";
-import Command from "../types/Command";
-import CommandCollection from "../types/CommandCollection";
-import ScriptArguments from "../types/ScriptArguments";
+import BunnerConst from '../const';
+import defineCommand from '../defineCommand';
+import executeCommandInstance from '../executeCommandInstance';
+import Formatter from '../Formatter';
+import TextBuilder from '../text-rendering/TextBuilder';
+import Command from '../types/Command';
+import CommandCollection from '../types/CommandCollection';
+import ScriptArguments from '../types/ScriptArguments';
 
 async function printGeneralHelp(commandCollection: CommandCollection) {
     const tb = new TextBuilder();
-    
+
     console.time('defined');
     tb.line();
-    tb.line(Formatter.withColorHex('Bunner - A Bun-based CLI Application Framework', Formatter.WHITE));
+    tb.line(
+        Formatter.withColorHex(
+            'Bunner - A Bun-based CLI Application Framework',
+            Formatter.WHITE,
+        ),
+    );
     tb.line();
     tb.line(Formatter.formatTitle('Usage:'));
     tb.indent();
-        tb.line();
-        tb.aligned([`${Formatter.formatCommandName('./run')} ${Formatter.formatCommandDescription('[command]')} ${Formatter.formatCommandDescription('[options]')}`]);
-        tb.line();
-        tb.aligned([`${Formatter.formatCommandName('./run help')}`, 'Show this help message']);
-        tb.line();
-        tb.aligned([`${Formatter.formatCommandName('./run help')} ${Formatter.formatCommandDescription('[cmd]')}`, 'Show help for specific command']);
+    tb.line();
+    tb.aligned([
+        `${Formatter.formatCommandName('./run')} ${Formatter.formatCommandDescription('[command]')} ${Formatter.formatCommandDescription('[options]')}`,
+    ]);
+    tb.line();
+    tb.aligned([
+        `${Formatter.formatCommandName('./run help')}`,
+        'Show this help message',
+    ]);
+    tb.line();
+    tb.aligned([
+        `${Formatter.formatCommandName('./run help')} ${Formatter.formatCommandDescription('[cmd]')}`,
+        'Show help for specific command',
+    ]);
     tb.unindent();
-        
+
     tb.line();
     tb.separator();
     tb.line();
@@ -62,8 +75,7 @@ const d = defineCommand({
         id: 'special-command',
         title: 'Special System Commands',
     },
-    action: async ({ commandCollection, args  }) => {
-        
+    action: async ({ commandCollection, args }) => {
         // If specific command help is requested
         if (args.args.length > 0) {
             const command = commandCollection.get(args.args[0]);
@@ -73,9 +85,9 @@ const d = defineCommand({
                 console.error(`Command '${args.args[0]}' not found`);
             }
         }
-        
+
         return printGeneralHelp(commandCollection);
-    }
+    },
 });
 
 export default d;
@@ -88,7 +100,7 @@ if (require.main === module) {
         executeCommandInstance({
             command,
             commandCollection,
-            scriptArguments: ScriptArguments.initFromProcessArgv()
+            scriptArguments: ScriptArguments.initFromProcessArgv(),
         });
     }
 }

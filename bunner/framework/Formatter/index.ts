@@ -1,3 +1,3 @@
-import Formatter from "./Formatter";
+import Formatter from './Formatter';
 
 export default Formatter;

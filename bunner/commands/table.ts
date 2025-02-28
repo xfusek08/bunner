@@ -1,5 +1,5 @@
-import defineCommand from "../framework/defineCommand";
-import TextBuilder from "../framework/text-rendering/TextBuilder";
+import defineCommand from '../framework/defineCommand';
+import TextBuilder from '../framework/text-rendering/TextBuilder';
 
 export default defineCommand({
     command: 'table',
@@ -25,7 +25,8 @@ export default defineCommand({
             short: 'w',
             long: 'width',
             type: 'number',
-            description: 'Width of the table, defaults to the width of the terminal',
+            description:
+                'Width of the table, defaults to the width of the terminal',
             required: false,
         },
     ] as const,
@@ -36,12 +37,12 @@ export default defineCommand({
             console.error('No text provided');
             return 1;
         }
-        
-        for (const line of text.split(options["line-separator"])) {
-            const columns = line.split(options["col-separator"]);
+
+        for (const line of text.split(options['line-separator'])) {
+            const columns = line.split(options['col-separator']);
             tb.aligned(columns);
         }
-        
+
         console.log(tb.render());
-    }
+    },
 });

@@ -1,3 +1,3 @@
-import TextBuilder from "./TextBuilder";
+import TextBuilder from './TextBuilder';
 
 export default TextBuilder;

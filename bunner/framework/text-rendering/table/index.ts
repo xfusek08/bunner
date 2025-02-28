@@ -1,5 +1,3 @@
-import TextTable from "./TextTable"
+import TextTable from './TextTable';
 
-export {
-    TextTable,
-}
+export { TextTable };

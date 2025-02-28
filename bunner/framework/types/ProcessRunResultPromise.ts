@@ -1,4 +1,3 @@
-
-type ProcessRunResultPromise = never|Promise<number|void>;
+type ProcessRunResultPromise = never | Promise<number | void>;
 
 export default ProcessRunResultPromise;

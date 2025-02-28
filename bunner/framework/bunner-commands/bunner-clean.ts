@@ -1,4 +1,4 @@
-import defineCommand from "../defineCommand";
+import defineCommand from '../defineCommand';
 
 export default defineCommand({
     command: 'bunner-clean',
@@ -6,5 +6,5 @@ export default defineCommand({
     action: async () => {
         console.log('Cleaning up the bunner project...');
         process.exit(1);
-    }
+    },
 });

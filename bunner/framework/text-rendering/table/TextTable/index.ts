@@ -1,3 +1,3 @@
-import TextTable from "./TextTable";
+import TextTable from './TextTable';
 
 export default TextTable;
