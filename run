@@ -1,35 +1,53 @@
 #!/bin/sh
 
-ensure_image() {
+run_in_bun_docker() {
+    #------------------------------------------------------
+    # Setup paths and directories
+    #------------------------------------------------------
+    # Get absolute path of this script file no matter where it was sourced or called from
+    local thisScriptFileLocation=$(readlink -f "$0")
+    thisScriptFileLocation=$(dirname "$thisScriptFileLocation")
+    
+    local directory="$(pwd)"
+    
+    #------------------------------------------------------
+    # Build Docker image if it doesn't exist
+    #------------------------------------------------------
     if ! docker image inspect bun-docker-alpine:latest > /dev/null 2>&1; then
         echo "Building bun-docker-alpine image..."
+        cd "$thisScriptFileLocation"
         docker build -t bun-docker-alpine:latest -f Dockerfile .
+        cd "$directory"
     fi
-}
-
-run_in_bun_docker() {
-    ensure_image
     
-    local directory=$(pwd)
-    
+    #------------------------------------------------------
+    # Setup Docker socket permissions
+    #------------------------------------------------------
     # Get host's Docker socket group ID
     DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo 0)
+    
+    echo "$thisScriptFileLocation"
 
+    #------------------------------------------------------
+    # Run Bun in Docker container
+    #------------------------------------------------------
     docker run \
         --init \
         --interactive \
         --tty \
-        --env TERM=$TERM \
         --rm \
-        -e COLUMNS=${COLUMNS:-$(tput cols)} \
-        -e LINES=${LINES:-$(tput lines)} \
-        -v "$directory:$directory" \
-        -v /var/run/docker.sock:/var/run/docker.sock \
+        --env TERM="$TERM" \
+        --env COLUMNS="${COLUMNS:-$(tput cols)}" \
+        --env LINES="${LINES:-$(tput lines)}" \
+        --volume "$directory:$directory" \
+        --volume "$thisScriptFileLocation:$thisScriptFileLocation" \
+        --volume /var/run/docker.sock:/var/run/docker.sock \
         --group-add "$DOCKER_GID" \
-        -w "$directory" \
-        -u bun \
+        --workdir "$directory" \
+        --user bun \
         bun-docker-alpine:latest \
-        sh -c "bun bunner/entry.ts \"$@\""
+        sh -c "bun \"$thisScriptFileLocation/entry.ts\" \"$@\""
 }
 
+# Execute the function with all arguments passed to the script
 run_in_bun_docker "$@"

@@ -1,5 +1,4 @@
-import defineCommand from '../framework/defineCommand';
-import TextBuilder from '../framework/text-rendering/TextBuilder';
+import { defineCommand, TextBuilder } from '../../framework';
 
 export default defineCommand({
     command: 'table',

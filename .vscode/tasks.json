@@ -4,10 +4,10 @@
         {
             "type": "shell",
             "label": "eslint: lint whole folder",
-            "command": "docker run --rm -v ${workspaceFolder}/bunner:/app -w /app oven/bun bun eslint .",
+            "command": "docker run --rm -v ${workspaceFolder}/:/app/ -w /app oven/bun bun eslint .",
             "problemMatcher": {
                 "owner": "eslint",
-                "fileLocation": ["relative", "${workspaceFolder}/bunner"],
+                "fileLocation": ["relative", "${workspaceFolder}"],
                 "pattern": [
                     {
                         "regexp": "^/app/(.*)$",

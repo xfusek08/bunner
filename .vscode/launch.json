@@ -37,7 +37,7 @@
             "internalConsoleOptions": "neverOpen",
             "request": "launch",
             "name": "Debug Bunner Entry",
-            "program": "${workspaceFolder}/bunner/entry.ts",
+            "program": "${workspaceFolder}/entry.ts",
             // "args": ["table", "-w", "10", "asd asd | qwe qwe"],
             "args": [],
             "cwd": "${workspaceFolder}",

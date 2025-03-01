@@ -1,4 +1,4 @@
-import defineCommand from '../framework/defineCommand';
+import { defineCommand } from '../../framework';
 
 export default defineCommand({
     command: 'greet',
