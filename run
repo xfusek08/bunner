@@ -38,6 +38,7 @@ run_in_bun_docker() {
         --interactive \
         --tty \
         --rm \
+        --name bunner \
         --env TERM="$TERM" \
         --env COLUMNS="${COLUMNS:-$(tput cols)}" \
         --env LINES="${LINES:-$(tput lines)}" \
