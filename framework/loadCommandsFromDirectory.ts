@@ -12,7 +12,8 @@ export default async function loadCommandsFromDirectory({
     directory: string;
     defaultCategory?: null | string | CategoryDescription;
 }) {
-    const commandFiles = await readdir(directory);
+    const allFiles = await readdir(directory);
+    const commandFiles = allFiles.filter((file) => file.endsWith('.ts'));
 
     const res: Command[] = [];
     for (const commandFile of commandFiles) {
