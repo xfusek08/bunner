@@ -12,7 +12,11 @@ export default class TextTable {
         const cellRow: Cell[] = [];
         for (let i = 0; i < row.length; i++) {
             const oldWidth = this.getColumnWidth(i);
-            const cell = Cell.create(row[i]);
+            const cell = Cell.create({
+                col: i,
+                row: this.cells.length,
+                content: row[i],
+            });
             const cellCalculatedWidth = cell.width;
             if (cellCalculatedWidth > oldWidth) {
                 this.setColumnWidth(i, cellCalculatedWidth);
@@ -54,20 +58,15 @@ export default class TextTable {
             (acc, cell) => Math.max(acc, cell.rowCount),
             0,
         );
+
         for (let i = 0; i < lines; i++) {
-            let line = '';
-            for (let c = 0; c < cells.length; c++) {
-                line += cells[c].getRow(i);
-            }
-            putLine(line.replace(/ +$/, '')); // trim trailing spaces
+            const line = cells.map((cell) => cell.getRow(i)).join(' ');
+            putLine(line.replace(/ +$/, '')); // remove trailing spaces
         }
     }
 
     private fitCellsToWidth(cells: Cell[], width: number): Cell[] {
-        const totalMAximalWidth = cells.reduce(
-            (acc, cell) => acc + cell.width,
-            0,
-        );
+        const totalMAximalWidth = this.calculateTotalRowWidth(cells);
         const lastCell = cells[cells.length - 1];
         const widthWithoutLastCell = totalMAximalWidth - lastCell.width;
 
@@ -81,10 +80,7 @@ export default class TextTable {
         // Compute and check if we are able to fit cells at all
 
         const minCells = cells.map((c) => c.withWidth(c.minimalWidth));
-        const minTotalWidth = minCells.reduce(
-            (acc, cell) => acc + cell.width,
-            0,
-        );
+        const minTotalWidth = this.calculateTotalRowWidth(minCells);
         if (minTotalWidth > width) {
             console.error(`Unable to fit cells into width: ${width}`);
             return minCells; // TODO: maybe flag different style of rendering (bullet points)
@@ -130,6 +126,11 @@ export default class TextTable {
             }
             overflowWidth -= widthDelta;
         }
+    }
+
+    private calculateTotalRowWidth(row: Cell[]): number {
+        // count in the 1 space between the columns
+        return row.reduce((acc, cell) => acc + cell.width + 1, -1);
     }
 
     private computeCellStats(cells: Cell[], minCells: Cell[]) {

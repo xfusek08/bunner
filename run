@@ -15,4 +15,4 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run bun (it will automatically inherit all environment variables)
-exec bun bunner/entry.ts $@
+exec bun bunner/entry.ts "$@"

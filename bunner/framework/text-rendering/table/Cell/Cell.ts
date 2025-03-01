@@ -1,21 +1,40 @@
 import Cache from '../../../utils/Cache';
-import { visualLength } from '../../../utils/string';
+import { padEndVisual, visualLength } from '../../../utils/string';
 import Token from '../Token/Token';
+
+interface CellProps {
+    col: number;
+    row: number;
+    content: string;
+    width?: number;
+}
 
 export default class Cell {
     private _cache: Cache = Cache.create();
 
     private constructor(
         public readonly content: string,
+        public readonly col: number,
+        public readonly row: number,
         private readonly desiredWidth: number | null,
     ) {}
 
-    public static create(content: string, width?: number): Cell {
-        return new Cell(content, width ?? null);
+    public static create(props: CellProps): Cell {
+        return new Cell(
+            props.content,
+            props.col,
+            props.row,
+            props.width ?? null,
+        );
     }
 
     public withWidth(width: number): Cell {
-        return Cell.create(this.content, width);
+        return Cell.create({
+            col: this.col,
+            row: this.row,
+            content: this.content,
+            width: Math.ceil(width),
+        });
     }
 
     public getRow(index: number): string {
@@ -26,10 +45,9 @@ export default class Cell {
                 return ' '.repeat(this.width);
             }
 
-            return tokens
-                .map((token) => token.content)
-                .join('')
-                .padEnd(this.width, ' ');
+            let res = tokens.map((token) => token.content).join('');
+            res = padEndVisual(res, this.width);
+            return res;
         });
     }
 
@@ -48,10 +66,11 @@ export default class Cell {
 
     public get minimalWidth(): number {
         return this._cache.cached('minimalWidth', () => {
-            return this.eachToken.reduce(
-                (width, token) => Math.max(width, token.width),
-                0,
-            );
+            const words = this.content.split(/\s+/);
+            if (words.length === 0) {
+                return 0;
+            }
+            return Math.max(...words.map((word) => visualLength(word)));
         });
     }
 

@@ -31,7 +31,11 @@ export default defineCommand({
         },
     ] as const,
     action: async ({ options, args }) => {
-        const tb = new TextBuilder();
+        const tb = new TextBuilder({
+            indentSize: 4,
+            width: options.width,
+        });
+
         const text = args.getString(0);
         if (!text) {
             console.error('No text provided');
@@ -46,3 +50,8 @@ export default defineCommand({
         console.log(tb.render());
     },
 });
+
+//
+// |          |
+//  asd asd qwe
+//          qwe

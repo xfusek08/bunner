@@ -14,40 +14,14 @@ export default class Token {
         return this.width === 1 && this.content.trim() === '';
     }
 
+    public get startsWithSpace(): boolean {
+        return this.content[0] === ' ';
+    }
+
     public get isWhite(): boolean {
         return this.content.trim() === '';
     }
 
-    /**
-     *                                ' '
-     *                                [A]
-     *                              +-----+
-     *                              |     |
-     *                              v     |
-     *     +----------+   ' '    +-----------+
-     *     | initial  | -------> |   space   |<--+
-     *     +----------+          +-----------+   |
-     *           |                     |         |
-     *           |                     |         |
-     *   not ' ' |             not ' ' |         |
-     *   [A]     |           [P space] |         | ' '
-     *           |                 [A] |         |
-     *           |                     |         |
-     *           v                     v         |
-     *           |               +-----------+   |
-     *           +-------------> |   word    |---+
-     *                           +-----------+
-     *                              |    ^
-     *                              |    |
-     *                              +----+
-     *                              not ' '
-     *                              [A]
-     *
-     * Legend:
-     *   [A] = currentWord += char
-     *   [P space] = push space Token
-     *   [P word] = push word Token
-     */
     public static tokenize(text: string): Token[] {
         return text
             .split(/(\s+)/g)
@@ -57,5 +31,13 @@ export default class Token {
 
     public toString(): string {
         return this.content;
+    }
+
+    public withPrefix(prefix: string): Token {
+        return Token.create(prefix + this.content);
+    }
+
+    public ensureSpacePrefix(): Token {
+        return this.startsWithSpace ? this : this.withPrefix(' ');
     }
 }

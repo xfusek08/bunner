@@ -216,11 +216,11 @@ describe('Advanced Table Tests', () => {
 
         expect(tb.render()).toBe(
             [
-                '    Short A very long column    Med         Last',
+                '    Short A very long column      Med         Last',
                 '          header that wraps, a',
-                '          very long column',
-                '          header that wraps',
-                '    X     Small                 Normal text Right side',
+                '          very long column header',
+                '          that wraps',
+                '    X     Small                   Normal text Right side',
             ].join('\n'),
         );
     });
