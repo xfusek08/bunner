@@ -50,8 +50,3 @@ export default defineCommand({
         console.log(tb.render());
     },
 });
-
-//
-// |          |
-//  asd asd qwe
-//          qwe

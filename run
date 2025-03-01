@@ -1,18 +1,35 @@
 #!/bin/sh
 
-# Detect bun and run it write pretty error when bun is not found
+ensure_image() {
+    if ! docker image inspect bun-docker-alpine:latest > /dev/null 2>&1; then
+        echo "Building bun-docker-alpine image..."
+        docker build -t bun-docker-alpine:latest -f Dockerfile .
+    fi
+}
 
-# Define colors
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+run_in_bun_docker() {
+    ensure_image
+    
+    local directory=$(pwd)
+    
+    # Get host's Docker socket group ID
+    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo 0)
 
-# Check if bun is installed
-which bun >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo -e "${RED}❌ bun could not be found${NC}"
-    echo -e "💡 Please install bun by running '${RED}npm install -g bun${NC}'"
-    exit 1
-fi
+    docker run \
+        --init \
+        --interactive \
+        --tty \
+        --env TERM=$TERM \
+        --rm \
+        -e COLUMNS=${COLUMNS:-$(tput cols)} \
+        -e LINES=${LINES:-$(tput lines)} \
+        -v "$directory:$directory" \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        --group-add "$DOCKER_GID" \
+        -w "$directory" \
+        -u bun \
+        bun-docker-alpine:latest \
+        sh -c "bun bunner/entry.ts \"$@\""
+}
 
-# Run bun (it will automatically inherit all environment variables)
-exec bun bunner/entry.ts "$@"
+run_in_bun_docker "$@"

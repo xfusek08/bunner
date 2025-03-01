@@ -1,12 +1,5 @@
 {
-    "cSpell.words": [
-        "boolval",
-        "bunner",
-        "bytovio",
-        "getopt",
-        "lockb",
-        "realpath"
-    ],
+    "cSpell.words": ["bunner"],
     "workbench.colorCustomizations": {
         "sash.hoverBorder": "#a3272c",
         "statusBar.background": "#7a1d21",
