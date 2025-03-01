@@ -15,7 +15,7 @@ export default class TextTable {
             const cell = Cell.create({
                 col: i,
                 row: this.cells.length,
-                content: row[i],
+                content: row[i].trim(),
             });
             const cellCalculatedWidth = cell.width;
             if (cellCalculatedWidth > oldWidth) {

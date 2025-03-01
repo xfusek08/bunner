@@ -38,7 +38,8 @@
             "request": "launch",
             "name": "Debug Bunner Entry",
             "program": "${workspaceFolder}/bunner/entry.ts",
-            "args": ["table", "-w", "10", "ahoj jak se máš|já se mám dobře"],
+            // "args": ["table", "-w", "10", "asd asd | qwe qwe"],
+            "args": [],
             "cwd": "${workspaceFolder}",
             "stopOnEntry": false,
             "watchMode": false
