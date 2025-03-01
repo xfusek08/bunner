@@ -26,8 +26,10 @@ run_in_bun_docker() {
     # Get host's Docker socket group ID
     DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo 0)
     
-    echo "$thisScriptFileLocation"
-
+    local commandsDirectory="$1"
+    shift
+    commandsDirectory=$(readlink -f "$commandsDirectory")
+    
     #------------------------------------------------------
     # Run Bun in Docker container
     #------------------------------------------------------
@@ -46,7 +48,7 @@ run_in_bun_docker() {
         --workdir "$directory" \
         --user bun \
         bun-docker-alpine:latest \
-        sh -c "bun \"$thisScriptFileLocation/entry.ts\" \"$@\""
+        bun "$thisScriptFileLocation/entry.ts" "$commandsDirectory" "$@"
 }
 
 # Execute the function with all arguments passed to the script

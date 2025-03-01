@@ -20,7 +20,7 @@ if (!firstARgument || !lstatSync(firstARgument).isDirectory()) {
 
 const userCommandCollection = CommandCollection.create(
     await loadCommandsFromDirectory({
-        directory: firstARgument,
+        directory: path.resolve(__dirname, firstARgument),
     }),
 );
 

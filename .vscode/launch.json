@@ -38,8 +38,7 @@
             "request": "launch",
             "name": "Debug Bunner Entry",
             "program": "${workspaceFolder}/entry.ts",
-            // "args": ["table", "-w", "10", "asd asd | qwe qwe"],
-            "args": [],
+            "args": ["example/commands"],
             "cwd": "${workspaceFolder}",
             "stopOnEntry": false,
             "watchMode": false
