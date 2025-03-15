@@ -13,10 +13,7 @@ async function printGeneralHelp(commandCollection: CommandCollection) {
     console.time('defined');
     tb.line();
     tb.line(
-        Formatter.withColorHex(
-            'Bunner - A Bun-based CLI Application Framework',
-            Formatter.WHITE,
-        ),
+        Formatter.withColorHex('Bunner - A Bun-based CLI Application Framework', Formatter.WHITE),
     );
     tb.line();
     tb.line(Formatter.formatTitle('Usage:'));
@@ -26,10 +23,7 @@ async function printGeneralHelp(commandCollection: CommandCollection) {
         `${Formatter.formatCommandName('./run')} ${Formatter.formatCommandDescription('[command]')} ${Formatter.formatCommandDescription('[options]')}`,
     ]);
     tb.line();
-    tb.aligned([
-        `${Formatter.formatCommandName('./run help')}`,
-        'Show this help message',
-    ]);
+    tb.aligned([`${Formatter.formatCommandName('./run help')}`, 'Show this help message']);
     tb.line();
     tb.aligned([
         `${Formatter.formatCommandName('./run help')} ${Formatter.formatCommandDescription('[cmd]')}`,
@@ -90,9 +84,7 @@ const d = defineCommand({
     },
 });
 
-export default d;
-
-// run help anually if file is directly executed
+// run help manually if file is directly executed
 if (require.main === module) {
     const command = Command.fromDefinition(d);
     if (command instanceof Command) {
@@ -104,3 +96,5 @@ if (require.main === module) {
         });
     }
 }
+
+export default d;

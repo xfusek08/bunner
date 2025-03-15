@@ -1,4 +1,4 @@
-import { defineCommand, TextBuilder } from '../../framework';
+import { defineCommand, TextBuilder } from 'bunner/framework';
 
 export default defineCommand({
     command: 'table',
@@ -24,8 +24,7 @@ export default defineCommand({
             short: 'w',
             long: 'width',
             type: 'number',
-            description:
-                'Width of the table, defaults to the width of the terminal',
+            description: 'Width of the table, defaults to the width of the terminal',
             required: false,
         },
     ] as const,

@@ -31,6 +31,19 @@ run_in_bun_docker() {
     commandsDirectory=$(readlink -f "$commandsDirectory")
     
     #------------------------------------------------------
+    # Determine container name (bunner, bunner_1, bunner_2, etc.)
+    #------------------------------------------------------
+    local container_name="bunner"
+    local counter=1
+    
+    while docker container inspect "$container_name" >/dev/null 2>&1; do
+        container_name="bunner_$counter"
+        counter=$((counter + 1))
+    done
+    
+    echo "Using container name: $container_name"
+    
+    #------------------------------------------------------
     # Run Bun in Docker container
     #------------------------------------------------------
     docker run \
@@ -38,10 +51,11 @@ run_in_bun_docker() {
         --interactive \
         --tty \
         --rm \
-        --name bunner \
+        --name "$container_name" \
         --env TERM="$TERM" \
         --env COLUMNS="${COLUMNS:-$(tput cols)}" \
         --env LINES="${LINES:-$(tput lines)}" \
+        --env BUNNER_ENTRY_POINT_DIRECTORY="$thisScriptFileLocation" \
         --volume "$directory:$directory" \
         --volume "$thisScriptFileLocation:$thisScriptFileLocation" \
         --volume /var/run/docker.sock:/var/run/docker.sock \

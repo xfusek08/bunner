@@ -1,6 +1,5 @@
 import { $ } from 'bun';
-
-import { defineCommand } from '../../framework';
+import { defineCommand } from 'bunner/framework';
 
 export default defineCommand({
     command: 'pwd',
