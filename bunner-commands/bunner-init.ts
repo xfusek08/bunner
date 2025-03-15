@@ -7,15 +7,14 @@ import { defineCommand } from '../framework';
 
 export default defineCommand({
     command: 'bunner-init',
-    description: 'Sets up the current directory for a development of bunner scripts',
+    description: 'Sets up the given directory for a development of bunner scripts',
     options: [
         {
             short: 'D',
             long: 'directory',
             description: 'Directory to initialize',
             type: 'string',
-            required: false,
-            defaultValue: '.',
+            required: true,
         },
     ] as const,
     action: async ({ options }) => {
