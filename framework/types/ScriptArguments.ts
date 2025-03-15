@@ -9,12 +9,7 @@ export default class ScriptArguments {
     public static initFromProcessArgv(): ScriptArguments {
         const [bunExecutable, scriptEntryPoint, ...args] = process.argv;
 
-        return new ScriptArguments(
-            process.cwd(),
-            bunExecutable,
-            scriptEntryPoint,
-            args,
-        );
+        return new ScriptArguments(process.cwd(), bunExecutable, scriptEntryPoint, args);
     }
 
     public popFirstArg() {
@@ -22,12 +17,7 @@ export default class ScriptArguments {
         const firstArg = args.shift();
         return [
             firstArg,
-            new ScriptArguments(
-                this.runDirectory,
-                this.bunExecutable,
-                this.scriptEntryPoint,
-                args,
-            ),
+            new ScriptArguments(this.runDirectory, this.bunExecutable, this.scriptEntryPoint, args),
         ] as const;
     }
 
@@ -46,10 +36,7 @@ export default class ScriptArguments {
 
     public getString(pos: number): string | null;
     public getString(pos: number, defaultValue: string): string;
-    public getString(
-        pos: number,
-        defaultValue: string | null = null,
-    ): string | null {
+    public getString(pos: number, defaultValue: string | null = null): string | null {
         if (pos >= this.args.length) {
             return defaultValue;
         }
@@ -58,5 +45,9 @@ export default class ScriptArguments {
             return defaultValue;
         }
         return val;
+    }
+
+    public asString(): string {
+        return this.args.join(' ');
     }
 }

@@ -5,15 +5,15 @@ import ProcessRunResultPromise from './types/ProcessRunResultPromise';
 import ScriptArguments from './types/ScriptArguments';
 
 export default async function executeCommandName({
-    commandName,
-    scriptArguments,
     commandCollection,
+    commandName,
     fallbackCommandName,
+    scriptArguments,
 }: {
-    commandName: string;
-    scriptArguments: ScriptArguments;
     commandCollection: CommandCollection;
+    commandName: string;
     fallbackCommandName?: string;
+    scriptArguments: ScriptArguments;
 }): ProcessRunResultPromise {
     const command = commandCollection.get(commandName ?? '');
     if (!command) {

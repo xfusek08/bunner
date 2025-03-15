@@ -8,18 +8,18 @@ import ScriptArguments from './types/ScriptArguments';
 
 export default async function executeCommandInstance({
     command,
-    scriptArguments,
     commandCollection,
+    scriptArguments,
 }: {
     command: Command;
-    scriptArguments: ScriptArguments;
     commandCollection: CommandCollection;
+    scriptArguments: ScriptArguments;
 }): ProcessRunResultPromise {
-    const runCommand = (commandName: string, args: string[] = []) => {
+    const runCommand = async (commandName: string, args: string[] = []) => {
         return executeCommandName({
+            commandCollection: commandCollection,
             commandName: commandName,
             scriptArguments: scriptArguments.replace(args),
-            commandCollection: commandCollection,
         });
     };
 

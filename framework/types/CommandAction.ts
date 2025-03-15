@@ -4,10 +4,7 @@ import { OptionDefinitions } from './OptionDefinition';
 import ProcessRunResultPromise from './ProcessRunResultPromise';
 import ScriptArguments from './ScriptArguments';
 
-export type RunCommandCallback = (
-    commandName: string,
-    arg: string[],
-) => ProcessRunResultPromise;
+export type RunCommandCallback = (commandName: string, arg: string[]) => ProcessRunResultPromise;
 
 export type CommandActionBaseArguments = {
     args: ScriptArguments;
