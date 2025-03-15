@@ -138,19 +138,66 @@ export default class DockerComposeTool {
         try {
             await ProcessRunner.run({
                 cmd,
-                onSigInt: async () => {
-                    log.info('Gracefully shutting down Docker Compose...');
-                },
                 spawnOptions: {
                     stdio: ['inherit', 'inherit', 'inherit'],
                     onExit: () => {
-                        // This will be called after the process exits
                         log.success('Docker Compose shut down successfully');
                     },
+                },
+                onSigInt: async () => {
+                    log.info('Gracefully shutting down Docker Compose...');
                 },
             });
         } catch (err) {
             throw new BunnerError(`Docker Compose up failed: ${err}`, 1);
+        }
+    }
+
+    /**
+     * Runs a one-off command in a specified Docker Compose service
+     */
+    public async composeRun({
+        container,
+        command,
+        profile,
+        rm = true,
+    }: {
+        container: string;
+        command: string;
+        profile?: string;
+        rm?: boolean;
+    }): Promise<void> {
+        // Prepare command arguments
+        const cmd = [
+            'docker',
+            'compose',
+            ...(profile ? ['--profile', profile] : []),
+            'run',
+            ...(rm ? ['--rm'] : []),
+            container,
+            'sh',
+            '-c',
+            command,
+        ];
+
+        // Log what we're doing
+        log.info(`Running command in container ${container}: ${command}`);
+
+        try {
+            await ProcessRunner.run({
+                cmd,
+                spawnOptions: {
+                    stdio: ['inherit', 'inherit', 'inherit'],
+                    onExit: () => {
+                        log.success('Exited container successfully');
+                    },
+                },
+                onSigInt: async () => {
+                    log.info('Exiting...');
+                },
+            });
+        } catch (err) {
+            throw new BunnerError(`Failed to run command in container ${container}: ${err}`, 1);
         }
     }
 }
