@@ -1,11 +1,11 @@
-import BunnerConst from '../const';
-import defineCommand from '../defineCommand';
-import executeCommandInstance from '../executeCommandInstance';
-import Formatter from '../Formatter';
-import TextBuilder from '../text-rendering/TextBuilder';
-import Command from '../types/Command';
-import CommandCollection from '../types/CommandCollection';
-import ScriptArguments from '../types/ScriptArguments';
+import BunnerConst from '../framework/const';
+import defineCommand from '../framework/defineCommand';
+import executeCommandInstance from '../framework/executeCommandInstance';
+import Formatter from '../framework/Formatter';
+import TextBuilder from '../framework/text-rendering/TextBuilder';
+import Command from '../framework/types/Command';
+import CommandCollection from '../framework/types/CommandCollection';
+import ScriptArguments from '../framework/types/ScriptArguments';
 
 async function printGeneralHelp(commandCollection: CommandCollection) {
     const tb = new TextBuilder();

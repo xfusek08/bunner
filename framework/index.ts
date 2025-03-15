@@ -1,6 +1,7 @@
+import { $ } from 'bun';
+
 import defineCommand from './defineCommand';
 import log from './log';
 import TextBuilder from './text-rendering/TextBuilder';
 
-
-export { defineCommand, TextBuilder, log };
+export { $, defineCommand, log, TextBuilder };

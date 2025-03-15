@@ -26,7 +26,7 @@ const userCommandCollection = CommandCollection.create(
 
 const bunnerCommandsCollection = CommandCollection.create(
     await loadCommandsFromDirectory({
-        directory: path.resolve(__dirname, './framework/bunner-commands'),
+        directory: path.resolve(__dirname, './bunner-commands'),
         defaultCategory: {
             id: 'bunner-internal',
             title: 'Bunner Internal Commands (primarily for framework development)',
