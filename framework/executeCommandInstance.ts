@@ -26,6 +26,7 @@ export default async function executeCommandInstance({
     const parseResult = await parseArguments({
         args: scriptArguments,
         definitions: command.optionsDefinition,
+        passUnknownOptions: command.passUnknownOptions,
     });
 
     if (parseResult instanceof Array) {
