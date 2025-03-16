@@ -7,5 +7,6 @@ export interface CommandDefinition<O extends undefined | OptionDefinitions> {
     readonly description: string;
     readonly category?: string | CategoryDescription;
     readonly options?: O;
+    readonly passUnknownOptions?: boolean;
     readonly action: CommandAction<O>;
 }

@@ -9,6 +9,7 @@ export default class Command {
         public readonly description: string,
         public readonly category: string | null | CategoryDescription,
         public readonly optionsDefinition: OptionDefinitions,
+        public readonly passUnknownOptions: boolean = false,
         public readonly action: CommandAction<OptionDefinitions>,
     ) {}
 
@@ -20,6 +21,7 @@ export default class Command {
             definition.description,
             'category' in definition ? (definition.category ?? null) : null,
             definition.options ?? [],
+            definition.passUnknownOptions,
             definition.action as CommandAction<OptionDefinitions>, // This type cas is because action has different call signatures for different CommandDefinition variants
         );
     }

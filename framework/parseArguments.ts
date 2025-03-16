@@ -7,6 +7,7 @@ import ScriptOptions from './types/ScriptOptions';
 type Props = {
     args: ScriptArguments;
     definitions: OptionDefinitions;
+    passUnknownOptions?: boolean;
 };
 
 type SuccessfulResult = {
@@ -18,7 +19,7 @@ type ErrorResult = string[];
 
 type Result = SuccessfulResult | ErrorResult;
 
-export default function parseArguments({ args, definitions }: Props): Result {
+export default function parseArguments({ args, definitions , passUnknownOptions = false }: Props): Result {
     const optionCatalog = OptionCatalog.fromDefinitions(definitions);
     const workingArgs = args.args.slice();
     const positionalArgs: string[] = [];
@@ -89,12 +90,15 @@ export default function parseArguments({ args, definitions }: Props): Result {
         if (arg.startsWith('--') && arg.includes('=')) {
             const [name, value] = arg.slice(2).split('=');
             const defaultOption = optionCatalog.getByLongName(name);
-            registerOption({
-                defaultOption,
-                optionDisplayName: `--${name}`,
-                requestValue: () => value,
-            });
-            continue;
+            
+            if (defaultOption || !passUnknownOptions) {
+                registerOption({
+                    defaultOption,
+                    optionDisplayName: `--${name}`,
+                    requestValue: () => value,
+                });
+                continue;
+            }
         }
 
         // Check for --option value
