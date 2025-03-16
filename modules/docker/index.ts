@@ -1,2 +1,3 @@
-export { DockerComposeTool } from './DockerComposeTool';
-export { DockerError } from './errors';
+import DockerComposeTool from './DockerComposeTool';
+
+export { DockerComposeTool };
