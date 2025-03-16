@@ -19,7 +19,11 @@ type ErrorResult = string[];
 
 type Result = SuccessfulResult | ErrorResult;
 
-export default function parseArguments({ args, definitions , passUnknownOptions = false }: Props): Result {
+export default function parseArguments({
+    args,
+    definitions,
+    passUnknownOptions = false,
+}: Props): Result {
     const optionCatalog = OptionCatalog.fromDefinitions(definitions);
     const workingArgs = args.args.slice();
     const positionalArgs: string[] = [];
@@ -90,7 +94,6 @@ export default function parseArguments({ args, definitions , passUnknownOptions 
         if (arg.startsWith('--') && arg.includes('=')) {
             const [name, value] = arg.slice(2).split('=');
             const defaultOption = optionCatalog.getByLongName(name);
-            
             if (defaultOption || !passUnknownOptions) {
                 registerOption({
                     defaultOption,
@@ -105,15 +108,17 @@ export default function parseArguments({ args, definitions , passUnknownOptions 
         if (arg.startsWith('--') && arg.length > 2) {
             const name = arg.slice(2);
             const defaultOption = optionCatalog.getByLongName(name);
-            registerOption({
-                defaultOption,
-                optionDisplayName: `--${name}`,
-                requestValue: () => workingArgs.shift(),
-            });
-            continue;
+            if (defaultOption || !passUnknownOptions) {
+                registerOption({
+                    defaultOption,
+                    optionDisplayName: `--${name}`,
+                    requestValue: () => workingArgs.shift(),
+                });
+                continue;
+            }
         }
 
-        // -- is a valid positional argument
+        // -- is a valid positional argument or invalid option but it should be passed through as a positional argument
         if (arg.startsWith('--')) {
             positionalArgs.push(arg);
             continue;
@@ -123,56 +128,66 @@ export default function parseArguments({ args, definitions , passUnknownOptions 
         if (arg.startsWith('-') && arg.includes('=')) {
             const [name, value] = arg.slice(1).split('=');
             const defaultOption = optionCatalog.getByShortName(name);
-            registerOption({
-                defaultOption,
-                optionDisplayName: `-${name}`,
-                requestValue: () => value,
-            });
-            continue;
+            if (defaultOption || !passUnknownOptions) {
+                registerOption({
+                    defaultOption,
+                    optionDisplayName: `-${name}`,
+                    requestValue: () => value,
+                });
+                continue;
+            }
         }
 
         // Check for -o [value]
         if (arg.startsWith('-') && arg.length === 2) {
             const shortNames = arg.slice(1);
             const defaultOption = optionCatalog.getByShortName(shortNames);
-            registerOption({
-                defaultOption,
-                optionDisplayName: `-${shortNames}`,
-                requestValue: () => workingArgs.shift(),
-            });
-            continue;
+            if (defaultOption || !passUnknownOptions) {
+                registerOption({
+                    defaultOption,
+                    optionDisplayName: `-${shortNames}`,
+                    requestValue: () => workingArgs.shift(),
+                });
+                continue;
+            }
         }
 
         // Check for -abc (condensed flags)
         if (arg.startsWith('-') && arg.length > 2) {
             const shortNames = arg.slice(1);
-            shortNames.split('').forEach((shortName) => {
-                const defaultOption = optionCatalog.getByShortName(shortName);
-                if (!defaultOption?.isType('boolean')) {
-                    errors.push(
-                        `Option -${shortName} in condensed flags option "-${shortNames}" must be a boolean. The option is defined as "${defaultOption?.type}"`,
-                    );
-                    return;
-                }
-                registerOption({
-                    defaultOption,
-                    optionDisplayName: `-${shortName}`,
-                    requestValue: () => undefined,
+            const mappedCondensedFlags = shortNames.split('').map((shortName) => ({
+                flagOption: optionCatalog.getByShortName(shortName),
+                shortName,
+            }));
+            const areAllFlagsValid = mappedCondensedFlags.every(
+                ({ flagOption: option }) => option !== null,
+            );
+            if (areAllFlagsValid || !passUnknownOptions) {
+                mappedCondensedFlags.forEach(({ flagOption, shortName }) => {
+                    if (!flagOption?.isType('boolean')) {
+                        errors.push(
+                            `Option -${shortName} in condensed flags option "-${shortNames}" must be a boolean. The option is defined as "${flagOption?.type}"`,
+                        );
+                        return;
+                    }
+                    registerOption({
+                        defaultOption: flagOption,
+                        optionDisplayName: `-${shortName}`,
+                        requestValue: () => undefined,
+                    });
                 });
-            });
-            continue;
+                continue;
+            }
         }
 
-        // everything else including "-" is a positional argument
+        // everything else (including "-") is a positional argument
         positionalArgs.push(arg);
     }
 
     // Check for required options
     for (const option of optionCatalog.iterate()) {
         if (option.required && !option.isValueSet) {
-            errors.push(
-                `Option ${option.prettyDashedShortLongName} is required`,
-            );
+            errors.push(`Option ${option.prettyDashedShortLongName} is required`);
         }
     }
 
