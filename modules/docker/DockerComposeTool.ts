@@ -161,11 +161,13 @@ export default class DockerComposeTool {
         command,
         profile,
         rm = true,
+        exposePorts = false,
     }: {
         container: string;
         command: string;
         profile?: string;
         rm?: boolean;
+        exposePorts?: boolean;
     }): Promise<void> {
         // Prepare command arguments
         const cmd = [
@@ -173,6 +175,7 @@ export default class DockerComposeTool {
             'compose',
             ...(profile ? ['--profile', profile] : []),
             'run',
+            ...(exposePorts ? ['--service-ports'] : []),
             ...(rm ? ['--rm'] : []),
             container,
             'sh',
