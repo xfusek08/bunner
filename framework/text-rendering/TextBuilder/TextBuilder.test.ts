@@ -14,14 +14,7 @@ describe('Text Builder Tests', () => {
         tb.line('Hello, world!');
         tb.line();
         expect(tb.render()).toBe(
-            [
-                'Hello, world!',
-                '',
-                '    Hello, world! indented',
-                '',
-                'Hello, world!',
-                '',
-            ].join('\n'),
+            ['Hello, world!', '', '    Hello, world! indented', '', 'Hello, world!', ''].join('\n'),
         );
     });
 
@@ -30,11 +23,7 @@ describe('Text Builder Tests', () => {
         const tb = new TextBuilder({ width: w });
         tb.line('Hello, world!');
         tb.line('='.repeat(w));
-        tb.aligned([
-            'asdasd',
-            '-',
-            'qweqwe qweqwe qweqwe qweqwe qweqwe qweqwe '.repeat(3),
-        ]);
+        tb.aligned(['asdasd', '-', 'qweqwe qweqwe qweqwe qweqwe qweqwe qweqwe '.repeat(3)]);
         tb.aligned(['qwe', '-', 'qve xvsvd asveev '.repeat(10)]);
 
         const a = tb.render();
@@ -60,11 +49,7 @@ describe('Aligned Text Tests', () => {
         tb.aligned(['Longer Text', 'Short']);
 
         expect(tb.render()).toBe(
-            [
-                'Column1     Column2',
-                'Short       Text',
-                'Longer Text Short',
-            ].join('\n'),
+            ['Column1     Column2', 'Short       Text', 'Longer Text Short'].join('\n'),
         );
     });
 
@@ -91,10 +76,7 @@ describe('Aligned Text Tests', () => {
 
     test('alignment with text wrapping', () => {
         const tb = new TextBuilder({ width: 40 });
-        tb.aligned([
-            'Column1',
-            'This is a very long text that should wrap nicely',
-        ]);
+        tb.aligned(['Column1', 'This is a very long text that should wrap nicely']);
         tb.aligned(['LongerColumn', 'Short text']);
 
         expect(tb.render()).toBe(
@@ -147,10 +129,7 @@ describe('Aligned Text Tests', () => {
         tb.aligned(['A', 'First level']);
         tb.line('Nested:');
         tb.indent();
-        tb.aligned([
-            'B',
-            'Second level with wrapping text that should go to next line',
-        ]);
+        tb.aligned(['B', 'Second level with wrapping text that should go to next line']);
         tb.unindent();
         tb.aligned(['C', 'Back to first level']);
         tb.unindent();
@@ -227,25 +206,9 @@ describe('Advanced Table Tests', () => {
 
     test('technical specification layout', () => {
         const tb = new TextBuilder({ width: 80 });
-        tb.aligned([
-            'Component',
-            '|',
-            'Version',
-            '|',
-            'License',
-            '|',
-            'Status',
-        ]);
+        tb.aligned(['Component', '|', 'Version', '|', 'License', '|', 'Status']);
         tb.aligned(['React', '|', '18.2.0', '|', 'MIT', '|', 'Production']);
-        tb.aligned([
-            'TypeScript',
-            '|',
-            '5.0.4',
-            '|',
-            'Apache 2.0',
-            '|',
-            'Development',
-        ]);
+        tb.aligned(['TypeScript', '|', '5.0.4', '|', 'Apache 2.0', '|', 'Development']);
         tb.aligned(['webpack', '|', '5.80.0', '|', 'MIT', '|', 'Optional']);
 
         expect(tb.render()).toBe(
@@ -308,11 +271,7 @@ describe('Advanced Table Tests', () => {
 describe('Colored Text Tests', () => {
     test('colored text in table', () => {
         const tb = new TextBuilder({ width: 70 });
-        tb.aligned([
-            'Status',
-            '\x1b[32mONLINE\x1b[0m',
-            '\x1b[33mPENDING\x1b[0m',
-        ]);
+        tb.aligned(['Status', '\x1b[32mONLINE\x1b[0m', '\x1b[33mPENDING\x1b[0m']);
         tb.aligned(['\x1b[31mERROR\x1b[0m', 'Details', 'More info']);
 
         expect(tb.render()).toBe(

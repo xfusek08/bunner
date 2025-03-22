@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 import log from './log';
 import CategoryDescription from './types/CategoryDescription';
 import Command from './types/Command';
-import { CommandDefinition } from './types/CommandDefinition';
+import { CommandDefinitionHelper } from './types/CommandDefinition';
 
 export default async function loadCommandsFromDirectory({
     directory,
@@ -20,20 +20,22 @@ export default async function loadCommandsFromDirectory({
         if (commandFile === '') {
             continue;
         }
-        const { default: commandRaw } = await import(
-            `${directory}/${commandFile}`
-        );
-        let definition = commandRaw as CommandDefinition<undefined>;
-        if (defaultCategory !== null && !('category' in definition)) {
-            definition = { ...definition, category: defaultCategory };
+        const { default: commandDefinition } = await import(`${directory}/${commandFile}`);
+
+        if (!CommandDefinitionHelper.isCommandDefinition(commandDefinition)) {
+            log.warn(`Failed to load command from ${commandFile}: not a valid command definition.`);
         }
-        const command = Command.fromDefinition(definition);
+
+        if (!CommandDefinitionHelper.hasCategory(commandDefinition)) {
+            commandDefinition.category = defaultCategory;
+        }
+
+        const command = Command.fromDefinition(commandDefinition);
         if (command instanceof Error) {
-            log.warn(
-                `Failed to load command from ${commandFile}: ${command.message}`,
-            );
+            log.warn(`Failed to load command from ${commandFile}: ${command.message}`);
             continue;
         }
+
         res.push(command);
     }
     return res;

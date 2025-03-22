@@ -20,12 +20,7 @@ export default class Cell {
     ) {}
 
     public static create(props: CellProps): Cell {
-        return new Cell(
-            props.content,
-            props.col,
-            props.row,
-            props.width ?? null,
-        );
+        return new Cell(props.content, props.col, props.row, props.width ?? null);
     }
 
     public withWidth(width: number): Cell {
@@ -59,9 +54,7 @@ export default class Cell {
     }
 
     public get widthOfContent(): number {
-        return this._cache.cached('widthOfContent', () =>
-            visualLength(this.content),
-        );
+        return this._cache.cached('widthOfContent', () => visualLength(this.content));
     }
 
     public get minimalWidth(): number {
@@ -85,15 +78,10 @@ export default class Cell {
     }
 
     public get eachToken(): Token[] {
-        return this._cache.cached('eachToken', () =>
-            this.tokenRows.flatMap((row) => row),
-        );
+        return this._cache.cached('eachToken', () => this.tokenRows.flatMap((row) => row));
     }
 
-    private static stringToTokenRows(
-        content: string,
-        width: number,
-    ): Token[][] {
+    private static stringToTokenRows(content: string, width: number): Token[][] {
         const realStringRows = content.split('\n');
         const realRows = realStringRows.map(Token.tokenize);
 

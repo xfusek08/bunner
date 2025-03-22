@@ -1,17 +1,11 @@
 import GetFirstRequiredKey from '../type-utils/GetFirstRequiredKey';
-import {
-    OptionDefinition,
-    OptionDefinitions,
-    SpecificOptionDefinition,
-} from './OptionDefinition';
+import { OptionDefinition, OptionDefinitions, SpecificOptionDefinition } from './OptionDefinition';
 import OptionValue from './OptionValue';
 
 type ExtractOptionType<D extends OptionDefinition> =
     D extends SpecificOptionDefinition<infer T> ? T : never;
 
-type IsBooleanOption<D extends OptionDefinition> = D extends { type: 'boolean' }
-    ? true
-    : false;
+type IsBooleanOption<D extends OptionDefinition> = D extends { type: 'boolean' } ? true : false;
 
 type HasDefaultValue<D extends OptionDefinition> = D extends {
     defaultValue: OptionValue<ExtractOptionType<D>>;
@@ -19,12 +13,9 @@ type HasDefaultValue<D extends OptionDefinition> = D extends {
     ? true
     : false;
 
-type IsRequired<D extends OptionDefinition> = D extends { required: true }
-    ? true
-    : false;
+type IsRequired<D extends OptionDefinition> = D extends { required: true } ? true : false;
 
-type WithDefaultValue<D extends OptionDefinition> =
-    HasDefaultValue<D> extends true ? D : never;
+type WithDefaultValue<D extends OptionDefinition> = HasDefaultValue<D> extends true ? D : never;
 
 export type ExtractParsedOptionValueType<
     D extends OptionDefinition,
@@ -47,13 +38,9 @@ type EvaluatedOption<
       }
     : never;
 
-type EvaluatedOptions<T extends OptionDefinitions> = T extends readonly [
-    infer First,
-    ...infer Rest,
-]
+type EvaluatedOptions<T extends OptionDefinitions> = T extends readonly [infer First, ...infer Rest]
     ? First extends OptionDefinition
-        ? EvaluatedOption<First> &
-              EvaluatedOptions<Rest extends OptionDefinitions ? Rest : []>
+        ? EvaluatedOption<First> & EvaluatedOptions<Rest extends OptionDefinitions ? Rest : []>
         : object
     : object;
 

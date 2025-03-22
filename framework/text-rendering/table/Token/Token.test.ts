@@ -6,20 +6,12 @@ describe('Token', () => {
     describe('tokenize', () => {
         it('should keep spaces as separate tokens', () => {
             const tokens = Token.tokenize('hello world');
-            expect(tokens.map((t) => t.content)).toEqual([
-                'hello',
-                ' ',
-                'world',
-            ]);
+            expect(tokens.map((t) => t.content)).toEqual(['hello', ' ', 'world']);
         });
 
         it('should handle multiple spaces', () => {
             const tokens = Token.tokenize('hello  world');
-            expect(tokens.map((t) => t.content)).toEqual([
-                'hello',
-                '  ',
-                'world',
-            ]);
+            expect(tokens.map((t) => t.content)).toEqual(['hello', '  ', 'world']);
         });
 
         it('should handle leading spaces', () => {
@@ -34,24 +26,12 @@ describe('Token', () => {
 
         it('should handle multiple consecutive spaces correctly', () => {
             const tokens = Token.tokenize('  hello   world  ');
-            expect(tokens.map((t) => t.content)).toEqual([
-                '  ',
-                'hello',
-                '   ',
-                'world',
-                '  ',
-            ]);
+            expect(tokens.map((t) => t.content)).toEqual(['  ', 'hello', '   ', 'world', '  ']);
         });
 
         it('should handle mixed spaces and words', () => {
             const tokens = Token.tokenize(' hello world ');
-            expect(tokens.map((t) => t.content)).toEqual([
-                ' ',
-                'hello',
-                ' ',
-                'world',
-                ' ',
-            ]);
+            expect(tokens.map((t) => t.content)).toEqual([' ', 'hello', ' ', 'world', ' ']);
         });
     });
 });

@@ -26,9 +26,15 @@ run_in_bun_docker() {
     # Get host's Docker socket group ID
     DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo 0)
     
-    local commandsDirectory="$1"
-    shift
-    commandsDirectory=$(readlink -f "$commandsDirectory")
+    #------------------------------------------------------
+    # Setup commands directory (if provided)
+    #------------------------------------------------------
+    local commandsDirectory=""
+    if [ -n "$1" ]; then
+        commandsDirectory="$1"
+        shift
+        commandsDirectory=$(readlink -f "$commandsDirectory")
+    fi
     
     #------------------------------------------------------
     # Determine container name (bunner, bunner_1, bunner_2, etc.)
@@ -40,8 +46,6 @@ run_in_bun_docker() {
         container_name="bunner_$counter"
         counter=$((counter + 1))
     done
-    
-    echo "Using container name: $container_name"
     
     #------------------------------------------------------
     # Run Bun in Docker container
@@ -63,7 +67,7 @@ run_in_bun_docker() {
         --workdir "$directory" \
         --user bun \
         bun-docker-alpine:latest \
-        bun "$thisScriptFileLocation/entry.ts" "$commandsDirectory" "$@"
+        bun "$thisScriptFileLocation/entry.ts" ${commandsDirectory:+"$commandsDirectory"} "$@"
 }
 
 # Execute the function with all arguments passed to the script

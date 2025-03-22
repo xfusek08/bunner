@@ -12,7 +12,14 @@ export default class ScriptArguments {
         return new ScriptArguments(process.cwd(), bunExecutable, scriptEntryPoint, args);
     }
 
+    public isEmpty() {
+        return this.args.length === 0;
+    }
+
     public popFirstArg() {
+        if (this.isEmpty()) {
+            return [null, this] as const;
+        }
         const args = this.args.slice();
         const firstArg = args.shift();
         return [

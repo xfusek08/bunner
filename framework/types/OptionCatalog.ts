@@ -11,30 +11,18 @@ export default class OptionCatalog {
         return catalog;
     }
 
-    public static fromDefinitions(
-        definitions: OptionDefinitions,
-    ): OptionCatalog {
+    public static fromDefinitions(definitions: OptionDefinitions): OptionCatalog {
         const catalog = new OptionCatalog({});
-        definitions.forEach((definition) =>
-            catalog.register(Option.create(definition)),
-        );
+        definitions.forEach((definition) => catalog.register(Option.create(definition)));
         return catalog;
     }
 
     public getByLongName(name: string): Option | null {
-        return (
-            Object.values(this.options).find(
-                (option) => option.long === name,
-            ) ?? null
-        );
+        return Object.values(this.options).find((option) => option.long === name) ?? null;
     }
 
     public getByShortName(name: string): Option | null {
-        return (
-            Object.values(this.options).find(
-                (option) => option.short === name,
-            ) ?? null
-        );
+        return Object.values(this.options).find((option) => option.short === name) ?? null;
     }
 
     public getByIdentifier(identifier: string): Option | null {

@@ -12,18 +12,21 @@ import ScriptArguments from './framework/types/ScriptArguments';
 try {
     const [firstARgument, scriptArguments] = ScriptArguments.initFromProcessArgv().popFirstArg();
 
-    if (!firstARgument || !lstatSync(firstARgument).isDirectory()) {
-        log.error(
-            'Invalid command directory path, please provide a directory from which to load commands as a first argument',
-        );
-        process.exit(1);
-    }
+    let userCommandCollection = CommandCollection.create([]);
 
-    const userCommandCollection = CommandCollection.create(
-        await loadCommandsFromDirectory({
-            directory: path.resolve(__dirname, firstARgument),
-        }),
-    );
+    if (!firstARgument) {
+        log.warn('No command directory provided. Only built-in commands will be available.');
+    } else if (!lstatSync(firstARgument).isDirectory()) {
+        log.warn(
+            `"${firstARgument}" is not a valid directory. Only built-in commands will be available.`,
+        );
+    } else {
+        userCommandCollection = CommandCollection.create(
+            await loadCommandsFromDirectory({
+                directory: path.resolve(__dirname, firstARgument),
+            }),
+        );
+    }
 
     const bunnerCommandsCollection = CommandCollection.create(
         await loadCommandsFromDirectory({
@@ -31,6 +34,7 @@ try {
             defaultCategory: {
                 id: 'bunner-internal',
                 title: 'Bunner Internal Commands (primarily for framework development)',
+                hidden: true,
             },
         }),
     );

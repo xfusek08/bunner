@@ -5,11 +5,7 @@ export function visualLength(str: string): number {
     return str.replace(ANSI_ESCAPE_PATTERN, '').length;
 }
 
-export function padEndVisual(
-    str: string,
-    desiredWidth: number,
-    fillString: string = ' ',
-): string {
+export function padEndVisual(str: string, desiredWidth: number, fillString: string = ' '): string {
     const length = visualLength(str);
     if (length < desiredWidth) {
         return str + fillString.repeat(desiredWidth - length);

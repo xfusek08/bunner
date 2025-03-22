@@ -58,11 +58,7 @@ describe('Argument Parsing', () => {
         });
 
         test('Multiple options', () => {
-            const args = prepareDefaultArguments().replace([
-                '-f',
-                '--foo',
-                '--b',
-            ]);
+            const args = prepareDefaultArguments().replace(['-f', '--foo', '--b']);
             const res = parseArguments({
                 args,
                 definitions: [],
@@ -77,13 +73,7 @@ describe('Argument Parsing', () => {
         });
 
         test('Options and positional arguments', () => {
-            const args = prepareDefaultArguments().replace([
-                'foo',
-                '-f',
-                '--foo',
-                'bar',
-                '--b',
-            ]);
+            const args = prepareDefaultArguments().replace(['foo', '-f', '--foo', 'bar', '--b']);
             const res = parseArguments({
                 args,
                 definitions: [],
@@ -98,11 +88,7 @@ describe('Argument Parsing', () => {
         });
 
         test('Positional arguments and single option', () => {
-            const args = prepareDefaultArguments().replace([
-                'foo',
-                'bar',
-                '--foo',
-            ]);
+            const args = prepareDefaultArguments().replace(['foo', 'bar', '--foo']);
             const res = parseArguments({
                 args,
                 definitions: [],
@@ -328,12 +314,7 @@ describe('Argument Parsing', () => {
 
         test('Boolean option set to true by both short and long names with positional arguments', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '-f',
-                    'foo',
-                    '--foo',
-                    'bar',
-                ]),
+                args: prepareDefaultArguments().replace(['-f', 'foo', '--foo', 'bar']),
                 definitions: [
                     {
                         long: 'foo',
@@ -373,11 +354,7 @@ describe('Argument Parsing', () => {
         });
 
         test('Boolean option set to true with positional arguments', () => {
-            const args = prepareDefaultArguments().replace([
-                'foo',
-                '-f',
-                'bar',
-            ]);
+            const args = prepareDefaultArguments().replace(['foo', '-f', 'bar']);
             const res = parseArguments({
                 args,
                 definitions: [
@@ -455,12 +432,7 @@ describe('Argument Parsing', () => {
             expect(
                 parseArguments({
                     definitions,
-                    args: prepareDefaultArguments().replace([
-                        '-f',
-                        '--foo',
-                        '-b',
-                        '--bar',
-                    ]),
+                    args: prepareDefaultArguments().replace(['-f', '--foo', '-b', '--bar']),
                 }),
             ).toEqual({
                 options: {
@@ -475,11 +447,7 @@ describe('Argument Parsing', () => {
             expect(
                 parseArguments({
                     definitions,
-                    args: prepareDefaultArguments().replace([
-                        '-f',
-                        '-b',
-                        '--bar',
-                    ]),
+                    args: prepareDefaultArguments().replace(['-f', '-b', '--bar']),
                 }),
             ).toEqual({
                 options: {
@@ -494,12 +462,7 @@ describe('Argument Parsing', () => {
             expect(
                 parseArguments({
                     definitions,
-                    args: prepareDefaultArguments().replace([
-                        '-f',
-                        '-F',
-                        '-b',
-                        '--bar',
-                    ]),
+                    args: prepareDefaultArguments().replace(['-f', '-F', '-b', '--bar']),
                 }),
             ).toEqual({
                 options: {
@@ -688,11 +651,7 @@ describe('Argument Parsing', () => {
             ];
             expect(
                 parseArguments({
-                    args: prepareDefaultArguments().replace([
-                        'hello',
-                        '-FfbZz',
-                        'world',
-                    ]),
+                    args: prepareDefaultArguments().replace(['hello', '-FfbZz', 'world']),
                     definitions,
                 }),
             ).toEqual({
@@ -708,12 +667,7 @@ describe('Argument Parsing', () => {
 
             expect(
                 parseArguments({
-                    args: prepareDefaultArguments().replace([
-                        'hello',
-                        '-Fz',
-                        'world',
-                        'foo',
-                    ]),
+                    args: prepareDefaultArguments().replace(['hello', '-Fz', 'world', 'foo']),
                     definitions,
                 }),
             ).toEqual({
@@ -724,11 +678,7 @@ describe('Argument Parsing', () => {
                     Z: false,
                     b: false,
                 },
-                restArgs: prepareDefaultArguments().replace([
-                    'hello',
-                    'world',
-                    'foo',
-                ]),
+                restArgs: prepareDefaultArguments().replace(['hello', 'world', 'foo']),
             });
         });
     });
@@ -1030,19 +980,12 @@ describe('Argument Parsing', () => {
                     },
                 ],
             });
-            expect(res).toEqual([
-                'Option --foo must have a value',
-                'Unknown option: --bar',
-            ]);
+            expect(res).toEqual(['Option --foo must have a value', 'Unknown option: --bar']);
         });
 
         test('String option with long name and equal sign with empty value followed by unknown option and another positional argument', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '--foo=',
-                    '--bar',
-                    'baz',
-                ]),
+                args: prepareDefaultArguments().replace(['--foo=', '--bar', 'baz']),
                 definitions: [
                     {
                         long: 'foo',
@@ -1053,10 +996,7 @@ describe('Argument Parsing', () => {
                     },
                 ],
             });
-            expect(res).toEqual([
-                'Option --foo must have a value',
-                'Unknown option: --bar',
-            ]);
+            expect(res).toEqual(['Option --foo must have a value', 'Unknown option: --bar']);
         });
 
         test('String option with long name and equal sign with empty value followed by known option', () => {
@@ -1083,12 +1023,7 @@ describe('Argument Parsing', () => {
 
         test('String option set by more than one argument', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '--foo',
-                    'bar',
-                    '-f',
-                    'baz',
-                ]),
+                args: prepareDefaultArguments().replace(['--foo', 'bar', '-f', 'baz']),
                 definitions: [
                     {
                         long: 'foo',
@@ -1106,11 +1041,7 @@ describe('Argument Parsing', () => {
 
         test('String option set multiple times where one is invalid', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '--foo',
-                    'bar',
-                    '--foo',
-                ]),
+                args: prepareDefaultArguments().replace(['--foo', 'bar', '--foo']),
                 definitions: [
                     {
                         long: 'foo',
@@ -1247,12 +1178,7 @@ describe('Argument Parsing', () => {
 
         test('Multiple string options with default values and short names', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '-f',
-                    'baz',
-                    '-b',
-                    'qux',
-                ]),
+                args: prepareDefaultArguments().replace(['-f', 'baz', '-b', 'qux']),
                 definitions: [
                     {
                         long: 'foo',
@@ -1283,12 +1209,7 @@ describe('Argument Parsing', () => {
 
         test('Multiple string options with default values and long names', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '--foo',
-                    'baz',
-                    '--baz',
-                    'qux',
-                ]),
+                args: prepareDefaultArguments().replace(['--foo', 'baz', '--baz', 'qux']),
                 definitions: [
                     {
                         long: 'foo',
@@ -1319,11 +1240,7 @@ describe('Argument Parsing', () => {
 
         test('Multiple string options with default values and positional arguments', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '--foo',
-                    'baz',
-                    'qux',
-                ]),
+                args: prepareDefaultArguments().replace(['--foo', 'baz', 'qux']),
                 definitions: [
                     {
                         long: 'foo',
@@ -1354,11 +1271,7 @@ describe('Argument Parsing', () => {
 
         test('Multiple string options with default values and long names with equal signs', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '--foo=baz',
-                    '--baz=qux',
-                    'quux',
-                ]),
+                args: prepareDefaultArguments().replace(['--foo=baz', '--baz=qux', 'quux']),
                 definitions: [
                     {
                         long: 'foo',
@@ -1421,11 +1334,7 @@ describe('Argument Parsing', () => {
                     foo: 'baz',
                     baz: 'qux',
                 },
-                restArgs: prepareDefaultArguments().replace([
-                    'asd',
-                    'qwe',
-                    'qux',
-                ]),
+                restArgs: prepareDefaultArguments().replace(['asd', 'qwe', 'qux']),
             });
         });
 
@@ -1459,11 +1368,7 @@ describe('Argument Parsing', () => {
 
         test('Multiple string options with default values and long names with empty values followed by positional argument', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '--foo=',
-                    '--baz=',
-                    'qux',
-                ]),
+                args: prepareDefaultArguments().replace(['--foo=', '--baz=', 'qux']),
                 definitions: [
                     {
                         long: 'foo',
@@ -1593,10 +1498,7 @@ describe('Argument Parsing', () => {
                     },
                 ],
             });
-            expect(res).toEqual([
-                'Option -f must have a value',
-                'Option -f --foo is required',
-            ]);
+            expect(res).toEqual(['Option -f must have a value', 'Option -f --foo is required']);
         });
     });
 
@@ -1780,45 +1682,31 @@ describe('Argument Parsing', () => {
 
             expect(
                 parseArguments({
-                    args: prepareDefaultArguments().replace([
-                        '--foo',
-                        '42.5.5',
-                    ]),
+                    args: prepareDefaultArguments().replace(['--foo', '42.5.5']),
                     definitions,
                 }),
-            ).toEqual([
-                'Option --foo must be a valid number representation. Received: "42.5.5"',
-            ]);
+            ).toEqual(['Option --foo must be a valid number representation. Received: "42.5.5"']);
 
             expect(
                 parseArguments({
                     args: prepareDefaultArguments().replace(['--foo', 'asd']),
                     definitions,
                 }),
-            ).toEqual([
-                'Option --foo must be a valid number representation. Received: "asd"',
-            ]);
+            ).toEqual(['Option --foo must be a valid number representation. Received: "asd"']);
 
             expect(
                 parseArguments({
                     args: prepareDefaultArguments().replace(['--foo', '42.5e']),
                     definitions,
                 }),
-            ).toEqual([
-                'Option --foo must be a valid number representation. Received: "42.5e"',
-            ]);
+            ).toEqual(['Option --foo must be a valid number representation. Received: "42.5e"']);
 
             expect(
                 parseArguments({
-                    args: prepareDefaultArguments().replace([
-                        '--foo',
-                        '42.5e-',
-                    ]),
+                    args: prepareDefaultArguments().replace(['--foo', '42.5e-']),
                     definitions,
                 }),
-            ).toEqual([
-                'Option --foo must be a valid number representation. Received: "42.5e-"',
-            ]);
+            ).toEqual(['Option --foo must be a valid number representation. Received: "42.5e-"']);
 
             expect(
                 parseArguments({
@@ -1903,36 +1791,28 @@ describe('Argument Parsing', () => {
                     args: prepareDefaultArguments().replace(['--foo=42.5.5']),
                     definitions,
                 }),
-            ).toEqual([
-                'Option --foo must be a valid number representation. Received: "42.5.5"',
-            ]);
+            ).toEqual(['Option --foo must be a valid number representation. Received: "42.5.5"']);
 
             expect(
                 parseArguments({
                     args: prepareDefaultArguments().replace(['--foo=asd']),
                     definitions,
                 }),
-            ).toEqual([
-                'Option --foo must be a valid number representation. Received: "asd"',
-            ]);
+            ).toEqual(['Option --foo must be a valid number representation. Received: "asd"']);
 
             expect(
                 parseArguments({
                     args: prepareDefaultArguments().replace(['--foo=42.5e']),
                     definitions,
                 }),
-            ).toEqual([
-                'Option --foo must be a valid number representation. Received: "42.5e"',
-            ]);
+            ).toEqual(['Option --foo must be a valid number representation. Received: "42.5e"']);
 
             expect(
                 parseArguments({
                     args: prepareDefaultArguments().replace(['--foo=42.5e-']),
                     definitions,
                 }),
-            ).toEqual([
-                'Option --foo must be a valid number representation. Received: "42.5e-"',
-            ]);
+            ).toEqual(['Option --foo must be a valid number representation. Received: "42.5e-"']);
 
             expect(
                 parseArguments({
@@ -1963,14 +1843,7 @@ describe('Argument Parsing', () => {
     describe('Final Combination Of All', () => {
         test('Multiple options with different types and requirements', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '-f',
-                    '42',
-                    '-b',
-                    'baz',
-                    '--bar',
-                    'baz',
-                ]),
+                args: prepareDefaultArguments().replace(['-f', '42', '-b', 'baz', '--bar', 'baz']),
                 definitions: [
                     {
                         long: 'foo',
@@ -2044,13 +1917,7 @@ describe('Argument Parsing', () => {
 
         test('Multiple options with different types and requirements with default values and arguments', () => {
             const res = parseArguments({
-                args: prepareDefaultArguments().replace([
-                    '-f',
-                    '42',
-                    '--baz',
-                    'bar',
-                    '--bar',
-                ]),
+                args: prepareDefaultArguments().replace(['-f', '42', '--baz', 'bar', '--bar']),
                 definitions: [
                     {
                         long: 'foo',
@@ -2209,12 +2076,7 @@ describe('Argument Parsing', () => {
                     foo: -3123.45,
                     bar: true,
                 },
-                restArgs: prepareDefaultArguments().replace([
-                    'asd',
-                    'baz',
-                    'qux',
-                    'quux',
-                ]),
+                restArgs: prepareDefaultArguments().replace(['asd', 'baz', 'qux', 'quux']),
             });
         });
     });

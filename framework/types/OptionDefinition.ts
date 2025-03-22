@@ -29,25 +29,21 @@ type BooleanOption = {
 
 type OptionValueTypeToOptionDefinitionVariant<T extends OptionType> =
     T extends OptionTypesWithoutBool
-        ?
-              | (BaseOptionDefinition & RequiredOption<T>)
-              | (BaseOptionDefinition & OptionalOption<T>)
+        ? (BaseOptionDefinition & RequiredOption<T>) | (BaseOptionDefinition & OptionalOption<T>)
         : BaseOptionDefinition & BooleanOption;
 
-type OptionDefinitionFromArray<T extends readonly OptionType[]> =
-    T extends readonly [infer F, ...infer R]
-        ? F extends OptionType
-            ? R extends OptionType[]
-                ? JoinUnions<
-                      OptionValueTypeToOptionDefinitionVariant<F>,
-                      OptionDefinitionFromArray<R>
-                  >
-                : OptionValueTypeToOptionDefinitionVariant<F>
-            : T
-        : T;
+type OptionDefinitionFromArray<T extends readonly OptionType[]> = T extends readonly [
+    infer F,
+    ...infer R,
+]
+    ? F extends OptionType
+        ? R extends OptionType[]
+            ? JoinUnions<OptionValueTypeToOptionDefinitionVariant<F>, OptionDefinitionFromArray<R>>
+            : OptionValueTypeToOptionDefinitionVariant<F>
+        : T
+    : T;
 
-export type SpecificOptionDefinition<T extends OptionType> =
-    OptionDefinitionFromArray<[T]>;
+export type SpecificOptionDefinition<T extends OptionType> = OptionDefinitionFromArray<[T]>;
 
 export type OptionDefinition = OptionDefinitionFromArray<OptionTypes>;
 
@@ -75,8 +71,7 @@ type BooleanOptionTest = SpecificOptionDefinition<'boolean'>; // BaseOptionDefin
 
 // Optional string with default
 // eslint-disable-next-line unused-imports/no-unused-vars
-type OptionalStringWithDefault = BaseOptionDefinition &
-    OptionalOption<'string'>; // { short/long, description, type: 'string', required: false, defaultValue?: string }
+type OptionalStringWithDefault = BaseOptionDefinition & OptionalOption<'string'>; // { short/long, description, type: 'string', required: false, defaultValue?: string }
 
 // Full option definition includes all types
 // eslint-disable-next-line unused-imports/no-unused-vars

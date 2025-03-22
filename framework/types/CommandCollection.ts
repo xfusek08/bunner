@@ -5,6 +5,7 @@ export interface CategoryIteratorItem {
     id: string;
     title: string;
     commands: Command[];
+    hidden: boolean;
 }
 
 type CommandMap = Record<string, Command>;
@@ -14,7 +15,38 @@ type CommandCategoryCatalogRecord = {
     commands: CommandMap;
 };
 
-type CommandCategoryCatalog = Record<string, CommandCategoryCatalogRecord>;
+class CommandCategoryCatalog {
+    private _catalog: Record<string, CommandCategoryCatalogRecord> = {};
+
+    public push({
+        categoryId,
+        categoryDescription,
+        command,
+    }: {
+        categoryId: string;
+        categoryDescription?: CategoryDescription | null;
+        command: Command;
+    }) {
+        const finalCategoryDescription =
+            categoryDescription ?? this._catalog[categoryId]?.categoryDescription;
+
+        this._catalog[categoryId] = {
+            categoryDescription: finalCategoryDescription,
+            commands: {
+                ...(this._catalog[categoryId]?.commands ?? {}),
+                [command.command]: command,
+            },
+        };
+    }
+
+    public records(): readonly CommandCategoryCatalogRecord[] {
+        return Object.values(this._catalog);
+    }
+
+    public allCommands(): readonly Command[] {
+        return this.records().flatMap((c) => Object.values(c.commands));
+    }
+}
 
 export default class CommandCollection {
     private constructor(
@@ -23,15 +55,12 @@ export default class CommandCollection {
     ) {}
 
     public static create(commands: Command[]): CommandCollection {
-        const { unsortedCommands, commandsByCategory } =
-            this.sortToCategories(commands);
+        const { unsortedCommands, commandsByCategory } = this.sortToCategories(commands);
 
         return new CommandCollection(unsortedCommands, commandsByCategory);
     }
 
-    public static merge(
-        ...collections: CommandCollection[]
-    ): CommandCollection {
+    public static merge(...collections: CommandCollection[]): CommandCollection {
         const { unsortedCommands, commandsByCategory } = this.sortToCategories(
             collections.flatMap((collection) => collection.allCommands),
         );
@@ -44,7 +73,7 @@ export default class CommandCollection {
             return this._unsortedCommands[command];
         }
 
-        for (const category of Object.values(this._commandsByCategory)) {
+        for (const category of this._commandsByCategory.records()) {
             if (command in category.commands) {
                 return category.commands[command];
             }
@@ -58,12 +87,7 @@ export default class CommandCollection {
     }
 
     public get allCommands(): readonly Command[] {
-        return [
-            ...this.unsortedCommands,
-            ...Object.values(this._commandsByCategory).flatMap((c) =>
-                Object.values(c.commands),
-            ),
-        ];
+        return [...this.unsortedCommands, ...this._commandsByCategory.allCommands()];
     }
 
     public get unsortedCommands(): readonly Command[] {
@@ -71,45 +95,61 @@ export default class CommandCollection {
     }
 
     public get categories(): readonly CategoryIteratorItem[] {
-        return Object.values(this._commandsByCategory).map((r) => ({
-            id: r.categoryDescription.id,
-            title: r.categoryDescription.title,
-            commands: Object.values(r.commands),
+        return this._commandsByCategory.records().map((c) => ({
+            id: c.categoryDescription.id,
+            title: c.categoryDescription.title,
+            hidden: c.categoryDescription.hidden ?? false,
+            commands: Object.values(c.commands),
         }));
     }
 
     private static sortToCategories(commands: Command[]) {
         const unsortedCommands: CommandMap = {};
-        const commandsByCategory: CommandCategoryCatalog = {};
+        const commandCategoryCatalog = new CommandCategoryCatalog();
 
         for (const command of commands) {
-            const commandCategory = command.category;
+            const { categoryId, categoryDescription } =
+                this.extractCategoryInfoFromCommand(command);
 
-            if (commandCategory === null) {
+            if (!categoryId) {
                 unsortedCommands[command.command] = command;
-                continue;
+            } else {
+                commandCategoryCatalog.push({
+                    categoryId,
+                    categoryDescription,
+                    command,
+                });
             }
-
-            const [id, description]: [string, CategoryDescription | undefined] =
-                typeof commandCategory === 'string'
-                    ? [
-                          commandCategory,
-                          commandsByCategory[commandCategory]
-                              ?.categoryDescription,
-                      ]
-                    : [commandCategory.id, commandCategory];
-
-            commandsByCategory[id] = {
-                categoryDescription: description,
-                commands: {
-                    ...(commandsByCategory[id]?.commands ?? {}),
-                    [command.command]: command,
-                },
-            };
         }
         return {
             unsortedCommands,
-            commandsByCategory,
+            commandsByCategory: commandCategoryCatalog,
+        };
+    }
+
+    private static extractCategoryInfoFromCommand(command: Command): {
+        categoryId: string | null;
+        categoryDescription: CategoryDescription | null;
+    } {
+        const commandCategoryValue = command.category;
+
+        if (!commandCategoryValue) {
+            return {
+                categoryId: null,
+                categoryDescription: null,
+            };
+        }
+
+        if (typeof commandCategoryValue === 'string') {
+            return {
+                categoryId: commandCategoryValue,
+                categoryDescription: null,
+            };
+        }
+
+        return {
+            categoryId: commandCategoryValue.id,
+            categoryDescription: commandCategoryValue,
         };
     }
 }

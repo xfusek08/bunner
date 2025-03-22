@@ -3,12 +3,7 @@ export default class log {
         return new Date().toISOString();
     }
 
-    private static format(
-        level: string,
-        emoji: string,
-        message: string,
-        color: string,
-    ): string {
+    private static format(level: string, emoji: string, message: string, color: string): string {
         return `${color}${emoji} [${level}] ${this.timestamp()}: ${message}\x1b[0m`;
     }
 

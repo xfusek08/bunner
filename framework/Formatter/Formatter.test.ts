@@ -36,10 +36,7 @@ export default class Formatter {
         }
     }
 
-    public static formatCategory(
-        tb: TextBuilder,
-        category: CategoryIteratorItem,
-    ) {
+    public static formatCategory(tb: TextBuilder, category: CategoryIteratorItem) {
         tb.line(this.formatTitle(category.title));
         tb.indent();
         this.formatCommandList(tb, Object.values(category.commands));
@@ -98,14 +95,10 @@ export default class Formatter {
     }
 
     public static formatCommandUsageBlock(tb: TextBuilder, command: Command) {
-        const r = (s: string) =>
-            this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
-        const o = (s: string) =>
-            this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
+        const r = (s: string) => this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
+        const o = (s: string) => this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
 
-        tb.line(
-            `${this.formatCommandName('./run')} ${this.formatCommandUsage(command)}`,
-        );
+        tb.line(`${this.formatCommandName('./run')} ${this.formatCommandUsage(command)}`);
         tb.line();
         tb.line(this.formatTitle('legend:'));
         tb.indent();
@@ -115,19 +108,15 @@ export default class Formatter {
     }
 
     public static formatCommandUsage(command: Command): string {
-        const r = (s: string) =>
-            this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
-        const o = (s: string) =>
-            this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
+        const r = (s: string) => this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
+        const o = (s: string) => this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
 
         const parts: string[] = [this.formatCommandName(command.command)];
 
         if (command.hasOptions) {
             for (const optionDef of command.optionsDefinition) {
                 const option = Option.create(optionDef);
-                const name = this.formatOptionName(
-                    option.shortDashedName ?? option.longDashedName,
-                );
+                const name = this.formatOptionName(option.shortDashedName ?? option.longDashedName);
 
                 let optionPart = name;
 
@@ -156,17 +145,12 @@ export default class Formatter {
         return this.withColorHex(`[${optionTypeName}]`, this.BLUE_BRIGHT);
     }
 
-    public static formatOptionDefaultValue(
-        value: OptionValue<OptionType>,
-    ): string {
-        const c = (s: string) =>
-            this.withColorHex(s, this.DEFAULT_PROPERTY_COLOR);
+    public static formatOptionDefaultValue(value: OptionValue<OptionType>): string {
+        const c = (s: string) => this.withColorHex(s, this.DEFAULT_PROPERTY_COLOR);
         return `${c('[default: ')}${this.formatOptionLiteralValue(value)}${c(']')}`;
     }
 
-    public static formatOptionLiteralValue(
-        value: OptionValue<OptionType>,
-    ): string {
+    public static formatOptionLiteralValue(value: OptionValue<OptionType>): string {
         switch (typeof value) {
             case 'string':
                 return this.formatStringLiteral(value);

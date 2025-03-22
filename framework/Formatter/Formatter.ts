@@ -4,6 +4,7 @@ import { CategoryIteratorItem } from '../types/CommandCollection';
 import Option from '../types/Option';
 import { OptionType } from '../types/OptionType';
 import OptionValue from '../types/OptionValue';
+import isEmpty from '../utils/isEmpty';
 
 export default class Formatter {
     static readonly YELLOW = '#ffd700';
@@ -27,19 +28,17 @@ export default class Formatter {
         return `${this.formatCommandName(command.command)} - ${this.formatCommandDescription(command.description)}`;
     }
 
-    public static formatCommandList(tb: TextBuilder, commands: Command[]) {
+    public static formatCommandList(tb: TextBuilder, commands: readonly Command[]) {
         for (const command of commands) {
             tb.aligned([
                 this.formatCommandName(command.command),
+                ' - ',
                 this.formatCommandDescription(command.description),
             ]);
         }
     }
 
-    public static formatCategory(
-        tb: TextBuilder,
-        category: CategoryIteratorItem,
-    ) {
+    public static formatCategory(tb: TextBuilder, category: CategoryIteratorItem) {
         tb.line(this.formatTitle(category.title) + ':');
         tb.indent();
         this.formatCommandList(tb, Object.values(category.commands));
@@ -66,7 +65,7 @@ export default class Formatter {
         tb.indent();
         this.formatCommandUsageBlock(tb, command);
         tb.unindent();
-        if (command.hasOptions) {
+        if (!isEmpty(command.optionsDefinition)) {
             tb.line();
             tb.line(this.formatTitle('Options:'));
             tb.indent();
@@ -99,14 +98,10 @@ export default class Formatter {
     }
 
     public static formatCommandUsageBlock(tb: TextBuilder, command: Command) {
-        const r = (s: string) =>
-            this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
-        const o = (s: string) =>
-            this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
+        const r = (s: string) => this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
+        const o = (s: string) => this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
 
-        tb.line(
-            `${this.formatCommandName('./run')} ${this.formatCommandUsage(command)}`,
-        );
+        tb.line(`${this.formatCommandName('./run')} ${this.formatCommandUsage(command)}`);
         tb.line();
         tb.line(this.formatTitle('legend:'));
         tb.indent();
@@ -116,35 +111,29 @@ export default class Formatter {
     }
 
     public static formatCommandUsage(command: Command): string {
-        const r = (s: string) =>
-            this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
-        const o = (s: string) =>
-            this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
+        const r = (s: string) => this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
+        const o = (s: string) => this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
 
         const parts: string[] = [this.formatCommandName(command.command)];
 
-        if (command.hasOptions) {
-            for (const optionDef of command.optionsDefinition) {
-                const option = Option.create(optionDef);
-                const name = this.formatOptionName(
-                    option.shortDashedName ?? option.longDashedName,
-                );
+        for (const optionDef of command.optionsDefinition) {
+            const option = Option.create(optionDef);
+            const name = this.formatOptionName(option.shortDashedName ?? option.longDashedName);
 
-                let optionPart = name;
+            let optionPart = name;
 
-                if (!option.isType('boolean')) {
-                    const exampleValue = this.formatOptionExampleValue(option);
-                    optionPart += ` ${exampleValue}`;
-                }
-
-                if (!option.required) {
-                    optionPart = `${o('[')}${optionPart}${o(']')}`;
-                } else {
-                    optionPart = `${r('<')}${optionPart}${r('>')}`;
-                }
-
-                parts.push(optionPart);
+            if (!option.isType('boolean')) {
+                const exampleValue = this.formatOptionExampleValue(option);
+                optionPart += ` ${exampleValue}`;
             }
+
+            if (!option.required) {
+                optionPart = `${o('[')}${optionPart}${o(']')}`;
+            } else {
+                optionPart = `${r('<')}${optionPart}${r('>')}`;
+            }
+
+            parts.push(optionPart);
         }
         return parts.join(' ');
     }
@@ -157,17 +146,12 @@ export default class Formatter {
         return this.withColorHex(`[${optionTypeName}]`, this.BLUE_BRIGHT);
     }
 
-    public static formatOptionDefaultValue(
-        value: OptionValue<OptionType>,
-    ): string {
-        const c = (s: string) =>
-            this.withColorHex(s, this.DEFAULT_PROPERTY_COLOR);
+    public static formatOptionDefaultValue(value: OptionValue<OptionType>): string {
+        const c = (s: string) => this.withColorHex(s, this.DEFAULT_PROPERTY_COLOR);
         return `${c('[default: ')}${this.formatOptionLiteralValue(value)}${c(']')}`;
     }
 
-    public static formatOptionLiteralValue(
-        value: OptionValue<OptionType>,
-    ): string {
+    public static formatOptionLiteralValue(value: OptionValue<OptionType>): string {
         switch (typeof value) {
             case 'string':
                 return this.formatStringLiteral(value);

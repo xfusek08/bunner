@@ -54,10 +54,7 @@ export default class TextTable {
     }
 
     private renderCells(cells: Cell[], putLine: (line: string) => void) {
-        const lines = cells.reduce(
-            (acc, cell) => Math.max(acc, cell.rowCount),
-            0,
-        );
+        const lines = cells.reduce((acc, cell) => Math.max(acc, cell.rowCount), 0);
 
         for (let i = 0; i < lines; i++) {
             const line = cells.map((cell) => cell.getRow(i)).join(' ');
@@ -71,9 +68,7 @@ export default class TextTable {
         const widthWithoutLastCell = totalMAximalWidth - lastCell.width;
 
         if (totalMAximalWidth <= width) {
-            cells[cells.length - 1] = lastCell.withWidth(
-                width - widthWithoutLastCell,
-            );
+            cells[cells.length - 1] = lastCell.withWidth(width - widthWithoutLastCell);
             return cells;
         }
 
@@ -92,8 +87,7 @@ export default class TextTable {
             widthWithoutLastCell < width &&
             spaceForLastCell >= minCells[minCells.length - 1].width
         ) {
-            cells[cells.length - 1] =
-                cells[cells.length - 1].withWidth(spaceForLastCell);
+            cells[cells.length - 1] = cells[cells.length - 1].withWidth(spaceForLastCell);
             return cells;
         }
 
@@ -101,10 +95,7 @@ export default class TextTable {
         const MAX_REDUCTION_FACTOR = 0.3;
 
         while (true) {
-            const cellStatsOrderedBySize = this.computeCellStats(
-                cells,
-                minCells,
-            );
+            const cellStatsOrderedBySize = this.computeCellStats(cells, minCells);
             const {
                 index: largestCellIndex,
                 toAverageReductionFactor,
@@ -116,11 +107,8 @@ export default class TextTable {
                 toMinReductionFactor,
                 MAX_REDUCTION_FACTOR,
             );
-            cells[largestCellIndex] = largestCell.withWidth(
-                largestCell.width * reductionFactor,
-            );
-            const widthDelta =
-                largestCell.width - cells[largestCellIndex].width;
+            cells[largestCellIndex] = largestCell.withWidth(largestCell.width * reductionFactor);
+            const widthDelta = largestCell.width - cells[largestCellIndex].width;
             if (widthDelta >= overflowWidth) {
                 return cells;
             }
@@ -140,8 +128,7 @@ export default class TextTable {
             toMinReductionFactor: number;
         };
 
-        const averageSize =
-            cells.reduce((acc, cell) => acc + cell.width, 0) / cells.length;
+        const averageSize = cells.reduce((acc, cell) => acc + cell.width, 0) / cells.length;
 
         return cells
             .map(
@@ -151,10 +138,7 @@ export default class TextTable {
                     toMinReductionFactor: minCells[i].width / cells[i].width,
                 }),
             )
-            .sort(
-                (a, b) =>
-                    a.toAverageReductionFactor - b.toAverageReductionFactor,
-            );
+            .sort((a, b) => a.toAverageReductionFactor - b.toAverageReductionFactor);
     }
 
     public getColumnWidth(columnIndex: number): number {

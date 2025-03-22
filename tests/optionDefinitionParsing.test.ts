@@ -14,10 +14,7 @@ function hasNOptions(catalog: OptionCatalog, n: number) {
     expect(Object.values((catalog as any).options).length).toBe(n);
 }
 
-function OptionDefinitionMatchesOption(
-    definition: OptionDefinition,
-    option: Option,
-) {
+function OptionDefinitionMatchesOption(definition: OptionDefinition, option: Option) {
     expect(option.long as any).toBe(definition.long as any);
     expect(option.short as any).toBe(definition.short as any);
     expect(option.description).toBe(definition.description);
@@ -249,12 +246,8 @@ describe('OptionCatalog.fromDefinitions:', () => {
         existsValueWithDefinition(c, 'empty-number', end);
         existsValueWithDefinition(c, 'default-number-true', dnt);
 
-        expect(
-            c.getByIdentifier('empty-string')?.withValue('value').value,
-        ).toBe('value');
-        expect(
-            c.getByIdentifier('default-string')?.withValue('value').value,
-        ).toBe('value');
+        expect(c.getByIdentifier('empty-string')?.withValue('value').value).toBe('value');
+        expect(c.getByIdentifier('default-string')?.withValue('value').value).toBe('value');
         expect(c.getByIdentifier('boolean')?.withValue(true).value).toBe(true);
         expect(c.getByIdentifier('empty-number')?.withValue(2).value).toBe(2);
     });
@@ -288,19 +281,11 @@ describe('OptionCatalog.fromDefinitions:', () => {
         expectedObject['empty-string'] = 'value';
         expect(c.buildScriptOptions()).toEqual(expectedObject);
 
-        nonNilPipe(
-            c.getByIdentifier('boolean'),
-            (o) => o.withValue(true),
-            c.register.bind(c),
-        );
+        nonNilPipe(c.getByIdentifier('boolean'), (o) => o.withValue(true), c.register.bind(c));
         expectedObject['boolean'] = true;
         expect(c.buildScriptOptions()).toEqual(expectedObject);
 
-        nonNilPipe(
-            c.getByIdentifier('empty-number'),
-            (o) => o.withValue(2),
-            c.register.bind(c),
-        );
+        nonNilPipe(c.getByIdentifier('empty-number'), (o) => o.withValue(2), c.register.bind(c));
         expectedObject['empty-number'] = 2;
         expect(c.buildScriptOptions()).toEqual(expectedObject);
 

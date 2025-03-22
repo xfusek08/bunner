@@ -1,6 +1,6 @@
 import CategoryDescription from './CategoryDescription';
 import CommandAction from './CommandAction';
-import { CommandDefinition } from './CommandDefinition';
+import CommandDefinition from './CommandDefinition';
 import { OptionDefinitions } from './OptionDefinition';
 
 export default class Command {
@@ -19,14 +19,10 @@ export default class Command {
         return new Command(
             definition.command,
             definition.description,
-            'category' in definition ? (definition.category ?? null) : null,
+            definition.category ?? null,
             definition.options ?? [],
             definition.passUnknownOptions,
             definition.action as CommandAction<OptionDefinitions>, // This type cas is because action has different call signatures for different CommandDefinition variants
         );
-    }
-
-    public get hasOptions() {
-        return this.optionsDefinition.length > 0;
     }
 }

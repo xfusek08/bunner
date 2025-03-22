@@ -3,10 +3,7 @@ import { OptionType } from './OptionType';
 import OptionValue from './OptionValue';
 
 export default class Option<T extends OptionType = OptionType> {
-    public static readonly OPTION_IDENTIFIER_PROPERTY_NAME_PRIORITY = [
-        'long',
-        'short',
-    ] as const;
+    public static readonly OPTION_IDENTIFIER_PROPERTY_NAME_PRIORITY = ['long', 'short'] as const;
 
     private constructor(
         public readonly long: string | undefined,
@@ -34,9 +31,7 @@ export default class Option<T extends OptionType = OptionType> {
     }
 
     public get prettyDashedShortLongName(): string {
-        return [this.shortDashedName, this.longDashedName]
-            .filter(Boolean)
-            .join(' ');
+        return [this.shortDashedName, this.longDashedName].filter(Boolean).join(' ');
     }
 
     public get shortDashedName(): string {
@@ -48,9 +43,7 @@ export default class Option<T extends OptionType = OptionType> {
     }
 
     public get dashedIdentifier(): string {
-        return this.longDashedName === ''
-            ? this.shortDashedName
-            : this.longDashedName;
+        return this.longDashedName === '' ? this.shortDashedName : this.longDashedName;
     }
 
     public get identifier(): string {
@@ -91,9 +84,7 @@ export default class Option<T extends OptionType = OptionType> {
 
     public parseValue(value: string): Error | OptionValue<T> {
         if (this.isType('boolean')) {
-            return new Error(
-                `Option ${this.prettyDashedShortLongName} does not take a value`,
-            );
+            return new Error(`Option ${this.prettyDashedShortLongName} does not take a value`);
         }
 
         if (this.isType('number')) {
