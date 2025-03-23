@@ -13,23 +13,30 @@ try {
     const [firstARgument, scriptArguments] = ScriptArguments.initFromProcessArgv().popFirstArg();
 
     let userCommandCollection = CommandCollection.create([]);
-
     let fallbackCommandArguments = scriptArguments.replace([BunnerConst.HELP_COMMAND]);
+    let isValidDirectory = false;
 
-    if (!firstARgument) {
-        log.warn('No command directory provided. Only built-in commands will be available.');
-        fallbackCommandArguments = fallbackCommandArguments.push('-a');
-    } else if (!lstatSync(firstARgument).isDirectory()) {
-        log.warn(
-            `"${firstARgument}" is not a valid directory. Only built-in commands will be available.`,
-        );
-        fallbackCommandArguments = fallbackCommandArguments.push('-a');
+    if (firstARgument) {
+        try {
+            isValidDirectory = lstatSync(firstARgument).isDirectory();
+        } catch {
+            log.error(`The provided command directory "${firstARgument}" is not valid directory.`);
+            isValidDirectory = false;
+        }
     } else {
+        log.warn('No command directory provided. Only built-in commands will be available.');
+    }
+
+    if (!isValidDirectory) {
+        fallbackCommandArguments = fallbackCommandArguments.push('-a');
+    } else if (firstARgument) {
         userCommandCollection = CommandCollection.create(
             await loadCommandsFromDirectory({
                 directory: path.resolve(__dirname, firstARgument),
             }),
         );
+    } else {
+        throw new BunnerError('Unexpected error - cannot resolve command directory', 1);
     }
 
     const bunnerCommandsCollection = CommandCollection.create(
