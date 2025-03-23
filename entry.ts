@@ -14,12 +14,16 @@ try {
 
     let userCommandCollection = CommandCollection.create([]);
 
+    let fallbackCommandArguments = scriptArguments.replace([BunnerConst.HELP_COMMAND]);
+
     if (!firstARgument) {
         log.warn('No command directory provided. Only built-in commands will be available.');
+        fallbackCommandArguments = fallbackCommandArguments.push('-a');
     } else if (!lstatSync(firstARgument).isDirectory()) {
         log.warn(
             `"${firstARgument}" is not a valid directory. Only built-in commands will be available.`,
         );
+        fallbackCommandArguments = fallbackCommandArguments.push('-a');
     } else {
         userCommandCollection = CommandCollection.create(
             await loadCommandsFromDirectory({
@@ -48,7 +52,7 @@ try {
         (await executeCommandFromArguments({
             scriptArguments,
             commandCollection,
-            fallbackCommandName: BunnerConst.HELP_COMMAND,
+            fallbackCommandArguments,
         })) ?? 0;
 
     process.exit(errorCode);

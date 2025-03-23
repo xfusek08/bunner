@@ -8,11 +8,11 @@ import isEmpty from './utils/isEmpty';
 export default async function executeCommandFromArguments({
     scriptArguments,
     commandCollection,
-    fallbackCommandName,
+    fallbackCommandArguments,
 }: {
     scriptArguments: ScriptArguments;
     commandCollection: CommandCollection;
-    fallbackCommandName?: string;
+    fallbackCommandArguments?: ScriptArguments;
 }): ProcessRunResultPromise {
     const [commandNameFromArgs, restCommandArgs] = scriptArguments.popFirstArg();
 
@@ -31,15 +31,11 @@ export default async function executeCommandFromArguments({
         }
     }
 
-    if (fallbackCommandName) {
-        const fallbackCommand = commandCollection.get(fallbackCommandName);
-        if (fallbackCommand) {
-            await executeCommandInstance({
-                command: fallbackCommand,
-                commandCollection: commandCollection,
-                scriptArguments: scriptArguments.clear(),
-            });
-        }
+    if (fallbackCommandArguments) {
+        await executeCommandFromArguments({
+            scriptArguments: fallbackCommandArguments,
+            commandCollection: commandCollection,
+        });
     }
 
     return 1;

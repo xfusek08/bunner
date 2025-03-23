@@ -16,16 +16,21 @@ export default class ScriptArguments {
         return this.args.length === 0;
     }
 
-    public popFirstArg() {
+    public popFirstArg(): [string | null, ScriptArguments] {
         if (this.isEmpty()) {
             return [null, this] as const;
         }
         const args = this.args.slice();
         const firstArg = args.shift();
-        return [
-            firstArg,
-            new ScriptArguments(this.runDirectory, this.bunExecutable, this.scriptEntryPoint, args),
-        ] as const;
+        return [firstArg ?? null, this.replace(args)];
+    }
+
+    public push(...arg: string[]): ScriptArguments;
+    public push(arg: string[]): ScriptArguments;
+    public push(arg: string): ScriptArguments;
+    public push(arg: string | string[]) {
+        const newArgs = Array.isArray(arg) ? arg : [arg];
+        return this.replace([...this.args, ...newArgs]);
     }
 
     public replace(args: string[]) {
