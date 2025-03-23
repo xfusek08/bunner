@@ -12,7 +12,7 @@ export default defineCommand({
     action: async ({ args }) => {
         // Determine the completion file path
         const completionsDir = path.join(args.runDirectory, 'completions');
-        const completionFilename = path.join(completionsDir, '_run.zsh');
+        const completionFilename = path.join(completionsDir, '_run');
 
         // Create the completions directory if it doesn't exist
         if (!fs.existsSync(completionsDir)) {
@@ -34,7 +34,7 @@ _run() {
         if [[ -x "$current_dir/run" ]]; then
             run_script="$current_dir/run"
             break
-        end
+        fi
         current_dir="$(dirname "$current_dir")"
     done
 
