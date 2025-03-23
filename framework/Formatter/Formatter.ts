@@ -263,7 +263,7 @@ export default class Formatter {
         for (const command of commands) {
             tb.line(`${command.command})`);
             tb.indent();
-            tb.line(`_arguments : \\`);
+            tb.line(`_arguments -A \\"-*\\" \\`);
             tb.indent();
             command.optionsDefinition.forEach((optionDef, index) => {
                 const isLast = index === command.optionsDefinition.length - 1;
