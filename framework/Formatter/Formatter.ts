@@ -201,11 +201,127 @@ export default class Formatter {
         return this.withColorHex(text, this.WHITE);
     }
 
+    public static formatCMD(text: string): string {
+        return this.withColorHex(text, this.STRING_LITERAL_COLOR);
+    }
+
+    public static white(text: string): string {
+        return this.withColorHex(text, this.WHITE);
+    }
+
     public static withColorHex(text: string, color: string): string {
         const hex = color.replace('#', '');
         const r = parseInt(hex.slice(0, 2), 16);
         const g = parseInt(hex.slice(2, 4), 16);
         const b = parseInt(hex.slice(4, 6), 16);
         return `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`;
+    }
+
+    public static formatCommandListCompletions(commands: readonly Command[]): void {
+        console.log('local -a commands=(');
+        for (const command of commands) {
+            console.log(`  '${command.command}:${command.description}'`);
+        }
+        console.log(')');
+        console.log('_describe "command" commands');
+    }
+
+    public static formatCompleteZshScript(commands: readonly Command[]): string {
+        const tb = new TextBuilder();
+
+        tb.line('_arguments -C \\');
+        tb.indent();
+        tb.line('"1: :->command" \\');
+        tb.line('"*:: :->args" \\');
+        tb.line('&& return 0');
+        tb.unindent();
+        tb.line();
+
+        tb.line('case "$state" in');
+        tb.indent();
+
+        // Command completion
+        tb.line('command)');
+        tb.indent();
+        tb.line('local -a commands=(');
+        tb.indent();
+        for (const command of commands) {
+            tb.line(`'${command.command}:${this.escapeQuotes(command.description)}'`);
+        }
+        tb.unindent();
+        tb.line(')');
+        tb.line('_describe "command" commands');
+        tb.unindent();
+        tb.line(';;');
+
+        // Arguments completion for each command
+        tb.line('args)');
+        tb.indent();
+        tb.line('case "$words[1]" in');
+        tb.indent();
+
+        for (const command of commands) {
+            tb.line(`${command.command})`);
+            tb.indent();
+            tb.line(`_arguments : \\`);
+            tb.indent();
+            command.optionsDefinition.forEach((optionDef, index) => {
+                const isLast = index === command.optionsDefinition.length - 1;
+                const option = Option.create(optionDef);
+                let completion = this.formatOptionForCompletion(option);
+                if (!isLast) {
+                    completion += ' \\';
+                }
+                tb.line(completion);
+            });
+            tb.unindent();
+            tb.unindent();
+            tb.line(';;');
+        }
+
+        tb.unindent();
+        tb.line('esac');
+        tb.unindent();
+        tb.line(';;');
+
+        tb.unindent();
+        tb.line('esac');
+
+        return tb.render();
+    }
+
+    public static formatOptionForCompletion(option: Option): string {
+        const names = [option.shortDashedName, option.longDashedName].filter((o) => !isEmpty(o));
+
+        // Description with required flag if needed
+        const description = option.required
+            ? `${option.description} (required)`
+            : option.description;
+
+        // Basic completion format
+        let result = `"(${names.join(' ')})"{${names.join(',')}}"[${this.escapeQuotes(description)}]`;
+
+        // Add type-specific completion info for non-boolean options
+        if (!option.isType('boolean')) {
+            let completionDescription = '';
+            let completionFunction = '';
+
+            if (option.isType('number')) {
+                completionDescription = 'number';
+                completionFunction = '_numbers';
+            } else {
+                completionDescription = `${option.long || 'text'} text`;
+            }
+
+            result += `:${completionDescription}:${completionFunction}`;
+        }
+
+        result += '"';
+
+        return result;
+    }
+
+    private static escapeQuotes(text: string): string {
+        return text.replace(/"/g, '\\"');
     }
 }

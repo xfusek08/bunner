@@ -7,9 +7,9 @@ run_in_bun_docker() {
     # Get absolute path of this script file no matter where it was sourced or called from
     local thisScriptFileLocation=$(readlink -f "$0")
     thisScriptFileLocation=$(dirname "$thisScriptFileLocation")
-    
+
     local directory="$(pwd)"
-    
+
     #------------------------------------------------------
     # Build Docker image if it doesn't exist
     #------------------------------------------------------
@@ -19,13 +19,13 @@ run_in_bun_docker() {
         docker build -t bun-docker-alpine:latest -f Dockerfile .
         cd "$directory"
     fi
-    
+
     #------------------------------------------------------
     # Setup Docker socket permissions
     #------------------------------------------------------
     # Get host's Docker socket group ID
-    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo 0)
-    
+    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2> /dev/null || echo 0)
+
     #------------------------------------------------------
     # Setup commands directory (if provided)
     #------------------------------------------------------
@@ -35,25 +35,35 @@ run_in_bun_docker() {
         shift
         commandsDirectory=$(readlink -f "$commandsDirectory")
     fi
-    
+
     #------------------------------------------------------
     # Determine container name (bunner, bunner_1, bunner_2, etc.)
     #------------------------------------------------------
     local container_name="bunner"
     local counter=1
-    
-    while docker container inspect "$container_name" >/dev/null 2>&1; do
+
+    while docker container inspect "$container_name" > /dev/null 2>&1; do
         container_name="bunner_$counter"
         counter=$((counter + 1))
     done
-    
+
+    #------------------------------------------------------
+    # Check if stdin is a TTY for interactive mode
+    #------------------------------------------------------
+    if [ -t 0 ]; then
+        # Interactive mode - include tty and interactive flags
+        INTERACTIVE_FLAGS="--interactive --tty"
+    else
+        # Non-interactive mode - skip tty and interactive flags
+        INTERACTIVE_FLAGS=""
+    fi
+
     #------------------------------------------------------
     # Run Bun in Docker container
     #------------------------------------------------------
     docker run \
         --init \
-        --interactive \
-        --tty \
+        $INTERACTIVE_FLAGS \
         --rm \
         --name "$container_name" \
         --env TERM="$TERM" \
