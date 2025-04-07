@@ -13,6 +13,7 @@ export default class Formatter {
     static readonly GREEN = '#00ff00';
     static readonly CYAN = '#00ffff';
     static readonly MAGENTA = '#ff00ff';
+    static readonly ORIGINAL = '#c0c0c0';
 
     static readonly SECTION_TITLE_COLOR = '#ffe7ba';
 
@@ -198,7 +199,7 @@ export default class Formatter {
     }
 
     public static formatCommandDescription(text: string): string {
-        return this.withColorHex(text, this.WHITE);
+        return this.original(text);
     }
 
     public static formatCMD(text: string): string {
@@ -209,12 +210,20 @@ export default class Formatter {
         return this.withColorHex(text, this.WHITE);
     }
 
-    public static withColorHex(text: string, color: string): string {
+    public static original(text: string): string {
+        return this.withColorHex(text, this.ORIGINAL);
+    }
+
+    public static colorToHexControl(color: string): string {
         const hex = color.replace('#', '');
         const r = parseInt(hex.slice(0, 2), 16);
         const g = parseInt(hex.slice(2, 4), 16);
         const b = parseInt(hex.slice(4, 6), 16);
-        return `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`;
+        return `\x1b[38;2;${r};${g};${b}m`;
+    }
+
+    public static withColorHex(text: string, color: string): string {
+        return this.colorToHexControl(color) + text + this.colorToHexControl(this.ORIGINAL);
     }
 
     public static formatCommandListCompletions(commands: readonly Command[]): void {
