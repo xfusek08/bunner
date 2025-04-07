@@ -1,9 +1,10 @@
-import { readdir, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { $ } from 'bun';
 
 import { defineCommand } from '../framework';
+import eachTemplateFile from '../framework/eachTemplateFile';
 
 export default defineCommand({
     command: 'bunner-init',
@@ -16,27 +17,33 @@ export default defineCommand({
             type: 'string',
             required: true,
         },
+        {
+            short: 'i',
+            long: 'install',
+            description: 'Install dependencies for bunner scripts development',
+            type: 'boolean',
+            required: false,
+            default: false,
+        },
     ] as const,
     action: async ({ options }) => {
-        const dir = import.meta.env.BUNNER_ENTRY_POINT_DIRECTORY;
-        const templatesDir = join(dir, 'templates');
+        const templateFiles: string[] = [];
 
-        // Get all files in the templates directory
-        const templateFiles = await readdir(templatesDir);
-
-        // Process each template file
-        for (const file of templateFiles) {
-            const sourcePath = join(templatesDir, file);
-            const targetPath = join(options.directory, file);
-
-            await $`cat "${sourcePath}" | sed "s|\$BUNNER_ROOT|${dir}|g" > "${targetPath}"`;
-        }
+        (await eachTemplateFile()).forEach(
+            async ({ templateFileBaseName, templateFileTransformed }) => {
+                templateFiles.push(templateFileBaseName);
+                const targetPath = join(options.directory, templateFileBaseName);
+                await writeFile(targetPath, templateFileTransformed);
+            },
+        );
 
         // Generate .gitignore file
         const gitignoreContent = templateFiles.join('\n');
         const gitignorePath = join(options.directory, '.gitignore');
         await writeFile(gitignorePath, gitignoreContent);
 
-        await $`cd ${dir} && bun install`;
+        if (options.install) {
+            await $`cd ${import.meta.env.BUNNER_ENTRY_POINT_DIRECTORY} && bun install`;
+        }
     },
 });

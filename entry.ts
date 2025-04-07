@@ -1,8 +1,11 @@
+import { execSync } from 'child_process';
 import { lstatSync } from 'fs';
 import path from 'path';
 
 import BunnerConst from './framework/const';
 import executeCommandFromArguments from './framework/executeCommandFromArguments';
+import executeCommandName from './framework/executeCommandIName';
+import isScriptDirectoryInitialized from './framework/isScriptDirectoryInitialized';
 import loadCommandsFromDirectory from './framework/loadCommandsFromDirectory';
 import log from './framework/log';
 import BunnerError from './framework/types/BunnerError';
@@ -12,34 +15,23 @@ import ScriptArguments from './framework/types/ScriptArguments';
 try {
     const [firstARgument, scriptArguments] = ScriptArguments.initFromProcessArgv().popFirstArg();
 
-    let userCommandCollection = CommandCollection.create([]);
     let fallbackCommandArguments = scriptArguments.replace([BunnerConst.HELP_COMMAND]);
-    let isValidDirectory = false;
+    let isValidDirectory = true;
 
-    if (firstARgument) {
-        try {
-            isValidDirectory = lstatSync(firstARgument).isDirectory();
-        } catch {
-            log.error(`The provided command directory "${firstARgument}" is not valid directory.`);
-            isValidDirectory = false;
-        }
-    } else {
-        log.warn('No command directory provided. Only built-in commands will be available.');
+    try {
+        isValidDirectory = !!firstARgument && lstatSync(firstARgument).isDirectory();
+    } catch {
+        log.warn(
+            `The provided first argument "${firstARgument}" is not a valid directory, only built-in commands will be available.`,
+        );
+        isValidDirectory = false;
     }
 
     if (!isValidDirectory) {
         fallbackCommandArguments = fallbackCommandArguments.push('-a');
-    } else if (firstARgument) {
-        userCommandCollection = CommandCollection.create(
-            await loadCommandsFromDirectory({
-                directory: path.resolve(__dirname, firstARgument),
-            }),
-        );
-    } else {
-        throw new BunnerError('Unexpected error - cannot resolve command directory', 1);
     }
 
-    const bunnerCommandsCollection = CommandCollection.create(
+    let commandCollection = CommandCollection.create(
         await loadCommandsFromDirectory({
             directory: path.resolve(__dirname, './bunner-commands'),
             defaultCategory: {
@@ -50,10 +42,39 @@ try {
         }),
     );
 
-    const commandCollection = CommandCollection.merge(
-        userCommandCollection,
-        bunnerCommandsCollection,
-    );
+    if (isValidDirectory && firstARgument) {
+        if (!(await isScriptDirectoryInitialized(firstARgument))) {
+            await executeCommandName({
+                commandCollection,
+                commandName: 'bunner-init',
+                scriptArguments: scriptArguments.replace(['-D', firstARgument]),
+            });
+
+            try {
+                execSync(`./run ${firstARgument} ${scriptArguments.asString()}`, {
+                    cwd: scriptArguments.runDirectory,
+                    stdio: 'inherit',
+                });
+                process.exit(0);
+            } catch (error) {
+                if (
+                    error &&
+                    typeof error === 'object' &&
+                    'status' in error &&
+                    typeof error.status === 'number'
+                ) {
+                    process.exit(error.status);
+                }
+                process.exit(1);
+            }
+        }
+
+        const userCommandCollection = CommandCollection.create(
+            await loadCommandsFromDirectory({ directory: path.resolve(__dirname, firstARgument) }),
+        );
+
+        commandCollection = CommandCollection.merge(userCommandCollection, commandCollection);
+    }
 
     const errorCode =
         (await executeCommandFromArguments({
