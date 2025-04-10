@@ -206,4 +206,20 @@ export default class DockerComposeTool {
             throw new BunnerError(`Failed to run command in container ${container}: ${err}`, 1);
         }
     }
+
+    /**
+     * Rebuilds a specific Docker Compose service
+     */
+    public async rebuild(serviceName: string): Promise<void> {
+        // Log the operation
+        log.info(`Rebuilding service: ${serviceName}`);
+
+        try {
+            // Run docker compose build command for the specific service
+            await $`docker compose build --no-cache ${serviceName}`.quiet();
+            log.success(`Successfully rebuilt service: ${serviceName}`);
+        } catch (error) {
+            throw new BunnerError(`Failed to rebuild service ${serviceName}: ${error}`, 1);
+        }
+    }
 }
