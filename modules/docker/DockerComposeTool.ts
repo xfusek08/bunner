@@ -215,9 +215,26 @@ export default class DockerComposeTool {
         log.info(`Rebuilding service: ${serviceName}`);
 
         try {
-            // Run docker compose build command for the specific service
-            await $`docker compose build --no-cache ${serviceName}`.quiet();
-            log.success(`Successfully rebuilt service: ${serviceName}`);
+            // Prepare command arguments
+            const cmd = [
+                'docker',
+                'compose',
+                'build',
+                serviceName
+            ];
+
+            await ProcessRunner.run({
+                cmd,
+                spawnOptions: {
+                    stdio: ['inherit', 'inherit', 'inherit'],
+                    onExit: () => {
+                        log.success(`Successfully rebuilt service: ${serviceName}`);
+                    },
+                },
+                onSigInt: async () => {
+                    log.info('Canceling rebuild...');
+                },
+            });
         } catch (error) {
             throw new BunnerError(`Failed to rebuild service ${serviceName}: ${error}`, 1);
         }
