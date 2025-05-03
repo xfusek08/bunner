@@ -27,8 +27,11 @@ class CommandCategoryCatalog {
         categoryDescription?: CategoryDescription | null;
         command: Command;
     }) {
-        const finalCategoryDescription =
-            categoryDescription ?? this._catalog[categoryId]?.categoryDescription;
+        const finalCategoryDescription = categoryDescription ??
+            this._catalog[categoryId]?.categoryDescription ?? {
+                id: categoryId,
+                title: categoryId,
+            };
 
         this._catalog[categoryId] = {
             categoryDescription: finalCategoryDescription,
