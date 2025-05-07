@@ -33,7 +33,7 @@ export default class Formatter {
         for (const command of commands) {
             tb.line(this.formatCommandUsage(command));
             tb.indent();
-            tb.aligned(['↳ ', this.formatCommandDescription(command.description)]);
+            tb.aligned([this.original('⋗'), this.formatCommandDescription(command.description)]);
             tb.unindent();
             tb.line();
         }
@@ -101,15 +101,19 @@ export default class Formatter {
     }
 
     public static formatCommandUsageBlock(tb: TextBuilder, command: Command) {
-        const r = (s: string) => this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
-        const o = (s: string) => this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
-
         tb.line(`${this.formatCommandName('./run')} ${this.formatCommandUsage(command)}`);
         tb.line();
+        this.writeLegend(tb);
+    }
+
+    public static writeLegend(tb: TextBuilder) {
+        const c = (s: string) => this.withColorHex(s, this.YELLOW);
+        const r = (s: string) => this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
+        const o = (s: string) => this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
         tb.line(this.formatTitle('legend:'));
+        tb.line();
         tb.indent();
-        tb.line(r('<required property>'));
-        tb.line(o('[optional property]'));
+        tb.line(`${c('command')} ${r('<required property>')} ${o('[optional property]')}`);
         tb.unindent();
     }
 

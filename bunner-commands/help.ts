@@ -74,22 +74,23 @@ async function printGeneralHelp(commandCollection: CommandCollection, showAll: b
         'Show help for specific command',
     ]);
     tb.unindent();
-
     tb.line();
-    tb.separator();
+
+    Formatter.writeLegend(tb);
+
     tb.line();
     tb.line(Formatter.formatTitle('Available commands:'));
     tb.indent();
     tb.line();
     Formatter.formatCommandList(tb, commandCollection.unsortedCommands);
-    tb.line();
+
     commandCollection.categories.forEach((c) => {
         if (!c.hidden || showAll) {
-            Formatter.formatCategory(tb, c);
             tb.line();
+            Formatter.formatCategory(tb, c);
         }
     });
-    tb.line(); // Add empty line at the end
+    tb.unindent();
 
     const res = tb.render();
     console.log(res);

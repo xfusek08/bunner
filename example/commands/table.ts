@@ -2,7 +2,7 @@ import { defineCommand, TextBuilder } from 'bunner/framework';
 
 export default defineCommand({
     command: 'table',
-    description: 'formats given string into a table',
+    description: 'Formats given string into a table.',
     options: [
         {
             short: 'l',
