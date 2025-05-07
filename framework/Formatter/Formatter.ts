@@ -31,19 +31,21 @@ export default class Formatter {
 
     public static formatCommandList(tb: TextBuilder, commands: readonly Command[]) {
         for (const command of commands) {
-            tb.aligned([
-                this.formatCommandName(command.command),
-                ' - ',
-                this.formatCommandDescription(command.description),
-            ]);
+            tb.line(this.formatCommandUsage(command));
+            tb.indent();
+            tb.aligned(['↳ ', this.formatCommandDescription(command.description)]);
+            tb.unindent();
+            tb.line();
         }
     }
 
     public static formatCategory(tb: TextBuilder, category: CategoryIteratorItem) {
-        tb.line(this.formatTitle(category.title) + ':');
-        tb.indent();
+        tb.line(this.formatTitle('--- ' + category.title + ' ---'));
+        tb.line();
+        tb.line();
+        // tb.indent();
         this.formatCommandList(tb, Object.values(category.commands));
-        tb.unindent();
+        // tb.unindent();
     }
 
     public static formatCommandOptionList(tb: TextBuilder, command: Command) {
@@ -166,7 +168,7 @@ export default class Formatter {
     public static formatOptionExampleValue(option: Option): string {
         switch (option.type) {
             case 'string':
-                return this.formatStringLiteral('example value');
+                return this.formatStringLiteral('value');
             case 'boolean':
                 return this.formatBooleanLiteral(true);
             case 'number':

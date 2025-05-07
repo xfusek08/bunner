@@ -39,6 +39,15 @@ export default class TextBuilder {
 
     public line(text?: string) {
         this.endTable();
+        if (this._indentSize > 0) {
+            this.aligned([' '.repeat(this.indentChart), text ?? '']);
+            this.endTable();
+        } else {
+            this.lineRaw(text);
+        }
+    }
+
+    private lineRaw(text?: string) {
         this._lines.push(' '.repeat(this.indentChart) + (text ?? ''));
     }
 
@@ -82,6 +91,6 @@ export default class TextBuilder {
         const table = this._mode;
         this._mode = 'line';
 
-        table.render(this.availableWidth, (line) => this.line(line));
+        table.render(this.availableWidth, (line) => this.lineRaw(line));
     }
 }
