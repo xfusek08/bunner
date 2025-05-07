@@ -64,17 +64,20 @@ export default class Formatter {
         tb.line();
 
         tb.indent();
-        tb.line(this.formatTitle('Usage:'));
+        tb.line(this.formatTitle('Usage'));
+        tb.line();
         tb.indent();
         this.formatCommandUsageBlock(tb, command);
         tb.unindent();
         if (!isEmpty(command.optionsDefinition)) {
             tb.line();
-            tb.line(this.formatTitle('Options:'));
+            tb.line(this.formatTitle('Options'));
+            tb.line();
             tb.indent();
             this.formatCommandOptionList(tb, command);
             tb.unindent();
         }
+        this.writeLegend(tb);
         tb.unindent();
         tb.line();
     }
@@ -95,15 +98,13 @@ export default class Formatter {
 
         tb.line(titleLine);
         tb.indent();
-        tb.line(option.description);
+        tb.aligned([this.original('⋗'), this.formatCommandDescription(option.description)]);
         tb.unindent();
         tb.line();
     }
 
     public static formatCommandUsageBlock(tb: TextBuilder, command: Command) {
         tb.line(`${this.formatCommandName('./run')} ${this.formatCommandUsage(command)}`);
-        tb.line();
-        this.writeLegend(tb);
     }
 
     public static writeLegend(tb: TextBuilder) {
