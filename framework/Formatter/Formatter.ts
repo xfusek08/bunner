@@ -40,12 +40,12 @@ export default class Formatter {
     }
 
     public static formatCategory(tb: TextBuilder, category: CategoryIteratorItem) {
-        tb.line(this.formatTitle('--- ' + category.title + ' ---'));
+        tb.line(this.formatTitle(category.title));
         tb.line();
         tb.line();
-        // tb.indent();
+        tb.indent();
         this.formatCommandList(tb, Object.values(category.commands));
-        // tb.unindent();
+        tb.unindent();
     }
 
     public static formatCommandOptionList(tb: TextBuilder, command: Command) {
