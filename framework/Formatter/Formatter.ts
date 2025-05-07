@@ -110,7 +110,7 @@ export default class Formatter {
         const c = (s: string) => this.withColorHex(s, this.YELLOW);
         const r = (s: string) => this.withColorHex(s, this.REQUIRED_PROPERTY_COLOR);
         const o = (s: string) => this.withColorHex(s, this.OPTIONAL_PROPERTY_COLOR);
-        tb.line(this.formatTitle('legend:'));
+        tb.line(this.formatTitle('Legend'));
         tb.line();
         tb.indent();
         tb.line(`${c('command')} ${r('<required property>')} ${o('[optional property]')}`);

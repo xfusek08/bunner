@@ -60,7 +60,9 @@ async function printGeneralHelp(commandCollection: CommandCollection, showAll: b
         Formatter.withColorHex('Bunner - A Bun-based CLI Application Framework', Formatter.WHITE),
     );
     tb.line();
-    tb.line(Formatter.formatTitle('Usage:'));
+    tb.separator();
+    tb.line();
+    tb.line(Formatter.formatTitle('Usage'));
     tb.indent();
     tb.line();
     tb.aligned([
@@ -74,12 +76,15 @@ async function printGeneralHelp(commandCollection: CommandCollection, showAll: b
         'Show help for specific command',
     ]);
     tb.unindent();
-    tb.line();
 
+    tb.line();
     Formatter.writeLegend(tb);
+    tb.line();
+
+    tb.separator();
 
     tb.line();
-    tb.line(Formatter.formatTitle('Available commands:'));
+    tb.line(Formatter.formatTitle('Available commands'));
     tb.indent();
     tb.line();
     Formatter.formatCommandList(tb, commandCollection.unsortedCommands);
