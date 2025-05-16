@@ -71,6 +71,7 @@ run_in_bun_docker() {
         --env LINES="${LINES:-$(tput lines)}" \
         --env BUNNER_ENTRY_POINT_DIRECTORY="$thisScriptFileLocation" \
         --volume "$directory:$directory" \
+        --volume "$commandsDirectory:$commandsDirectory" \
         --volume "$thisScriptFileLocation:$thisScriptFileLocation" \
         --volume /var/run/docker.sock:/var/run/docker.sock \
         --group-add "$DOCKER_GID" \

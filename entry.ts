@@ -20,10 +20,11 @@ try {
 
     try {
         isValidDirectory = !!firstARgument && lstatSync(firstARgument).isDirectory();
-    } catch {
+    } catch (error) {
         log.warn(
             `The provided first argument "${firstARgument}" is not a valid directory, only built-in commands will be available.`,
         );
+        console.error(error);
         isValidDirectory = false;
     }
 

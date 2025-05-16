@@ -56,6 +56,18 @@ export function isOptionOfType<T extends OptionType>(
     return definition.type === type;
 }
 
+export function optionBygName(
+    definitions: OptionDefinitions,
+    name: string,
+): OptionDefinition | undefined {
+    return definitions.find((definition) => {
+        if (definition.short === name || definition.long === name) {
+            return true;
+        }
+        return false;
+    });
+}
+
 // Type tests
 // String required option
 // eslint-disable-next-line unused-imports/no-unused-vars
