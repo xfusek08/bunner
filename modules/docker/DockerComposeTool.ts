@@ -211,17 +211,17 @@ export default class DockerComposeTool {
      * Rebuilds a specific Docker Compose service
      */
     public async rebuild(serviceName: string): Promise<void> {
-        // Log the operation
-        log.info(`Rebuilding service: ${serviceName}`);
-
         try {
-            // Prepare command arguments
-            const cmd = [
-                'docker',
-                'compose',
-                'build',
-                serviceName
-            ];
+            log.info(`Stopping and removing container for service: ${serviceName}`);
+
+            await $`docker compose stop ${serviceName}`;
+            await $`docker compose rm -f ${serviceName}`;
+
+            // ---
+
+            log.info(`Rebuilding service: ${serviceName}`);
+
+            const cmd = ['docker', 'compose', 'build', serviceName];
 
             await ProcessRunner.run({
                 cmd,
