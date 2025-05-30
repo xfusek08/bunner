@@ -135,22 +135,70 @@ export default class DockerComposeTool {
                 : 'Starting Docker Compose',
         );
 
+        await this.runAttachedCommand({
+            cmd,
+            errorMessage: 'Docker Compose up failed',
+            successMessage: 'Docker Compose shut down successfully',
+        });
+    }
+
+    /**
+     * Checks if a Docker Compose service container is running
+     */
+    private async isContainerRunning(serviceName: string): Promise<boolean> {
         try {
-            await ProcessRunner.run({
-                cmd,
-                spawnOptions: {
-                    stdio: ['inherit', 'inherit', 'inherit'],
-                    onExit: () => {
-                        log.success('Docker Compose shut down successfully');
-                    },
-                },
-                onSigInt: async () => {
-                    log.info('Gracefully shutting down Docker Compose...');
-                },
-            });
-        } catch (err) {
-            throw new BunnerError(`Docker Compose up failed: ${err}`, 1);
+            const result = await $`docker compose ps --services --filter status=running`.text();
+            const runningServices = result.trim().split('\n').filter(Boolean);
+            return runningServices.includes(serviceName);
+        } catch (error) {
+            log.error(`Error checking container status: ${error}`);
+            return false;
         }
+    }
+
+    /**
+     * Executes a command in a running Docker Compose service container
+     */
+    public async executeInRunningContainer({
+        container,
+        command,
+        profile,
+        interactive = false,
+    }: {
+        container: string;
+        command: string;
+        profile?: string;
+        interactive?: boolean;
+    }): Promise<void> {
+        // Check if container is running
+        const isRunning = await this.isContainerRunning(container);
+        if (!isRunning) {
+            throw new BunnerError(
+                `Container ${container} is not running. Use composeRun() instead.`,
+                1,
+            );
+        }
+
+        // Prepare command arguments for exec
+        const cmd = [
+            'docker',
+            'compose',
+            ...(profile ? ['--profile', profile] : []),
+            'exec',
+            ...(interactive ? ['-it'] : []),
+            container,
+            'sh',
+            '-c',
+            command,
+        ];
+
+        // Log what we're doing
+        log.info(`Executing command in running container ${container}: ${command}`);
+
+        await this.runAttachedCommand({
+            cmd,
+            errorMessage: `Failed to execute command in container ${container}`,
+        });
     }
 
     /**
@@ -171,7 +219,7 @@ export default class DockerComposeTool {
         exposePorts?: boolean;
         interactive?: boolean;
     }): Promise<void> {
-        // Prepare command arguments
+        // Prepare command arguments for run
         const cmd = [
             'docker',
             'compose',
@@ -187,24 +235,12 @@ export default class DockerComposeTool {
         ];
 
         // Log what we're doing
-        log.info(`Running command in container ${container}: ${command}`);
+        log.info(`Running command in new container ${container}: ${command}`);
 
-        try {
-            await ProcessRunner.run({
-                cmd,
-                spawnOptions: {
-                    stdio: ['inherit', 'inherit', 'inherit'],
-                    onExit: () => {
-                        log.success('Exited container successfully');
-                    },
-                },
-                onSigInt: async () => {
-                    log.info('Exiting...');
-                },
-            });
-        } catch (err) {
-            throw new BunnerError(`Failed to run command in container ${container}: ${err}`, 1);
-        }
+        await this.runAttachedCommand({
+            cmd,
+            errorMessage: `Failed to run command in container ${container}`,
+        });
     }
 
     /**
@@ -223,20 +259,43 @@ export default class DockerComposeTool {
 
             const cmd = ['docker', 'compose', 'build', serviceName];
 
+            await this.runAttachedCommand({
+                cmd,
+                errorMessage: `Failed to rebuild service ${serviceName}`,
+                successMessage: `Successfully rebuilt service: ${serviceName}`,
+            });
+        } catch (error) {
+            throw new BunnerError(`Failed to rebuild service ${serviceName}: ${error}`, 1);
+        }
+    }
+
+    /**
+     * Runs a command attached to the current terminal.
+     */
+    private async runAttachedCommand({
+        cmd,
+        errorMessage,
+        successMessage = 'Exited container successfully',
+    }: {
+        cmd: string[];
+        errorMessage: string;
+        successMessage?: string;
+    }): Promise<void> {
+        try {
             await ProcessRunner.run({
                 cmd,
                 spawnOptions: {
                     stdio: ['inherit', 'inherit', 'inherit'],
                     onExit: () => {
-                        log.success(`Successfully rebuilt service: ${serviceName}`);
+                        log.success(successMessage);
                     },
                 },
                 onSigInt: async () => {
-                    log.info('Canceling rebuild...');
+                    log.info('Exiting...');
                 },
             });
-        } catch (error) {
-            throw new BunnerError(`Failed to rebuild service ${serviceName}: ${error}`, 1);
+        } catch (err) {
+            throw new BunnerError(`${errorMessage}: ${err}`, 1);
         }
     }
 }

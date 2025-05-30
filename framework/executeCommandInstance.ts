@@ -32,15 +32,16 @@ export default async function executeCommandInstance({
         });
     };
 
-    const hasHelpOption =
-        !!optionBygName(command.optionsDefinition, 'h') ||
-        !!optionBygName(command.optionsDefinition, 'help');
+    const injectHelpOption =
+        !command.passUnknownOptions &&
+        (!!optionBygName(command.optionsDefinition, 'h') ||
+            !!optionBygName(command.optionsDefinition, 'help'));
 
     const parseResult = await parseArguments({
         args: scriptArguments,
-        definitions: hasHelpOption
-            ? command.optionsDefinition
-            : [...command.optionsDefinition, DefaultHelpOption],
+        definitions: injectHelpOption
+            ? [...command.optionsDefinition, DefaultHelpOption]
+            : command.optionsDefinition,
         passUnknownOptions: command.passUnknownOptions,
     });
 
@@ -51,7 +52,7 @@ export default async function executeCommandInstance({
 
     const { restArgs, options } = parseResult;
 
-    if (!hasHelpOption && options.help) {
+    if (injectHelpOption && options.help) {
         return executeCommandName({
             commandName: BunnerConst.HELP_COMMAND,
             commandCollection,

@@ -25,6 +25,7 @@ export default function parseArguments({
     passUnknownOptions = false,
 }: Props): Result {
     const optionCatalog = OptionCatalog.fromDefinitions(definitions);
+    // console.log('Option catalog:', { definitions, optionCatalog });
     const workingArgs = args.args.slice();
     const positionalArgs: string[] = [];
     const errors: ErrorResult = [];
