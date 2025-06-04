@@ -265,17 +265,19 @@ export default class DockerComposeTool {
         exposePorts?: boolean;
         interactive?: boolean;
     }): Promise<void> {
-        const runArgs = [
-            'run',
-            ...(interactive ? ['-it'] : []),
-            ...(exposePorts ? ['--service-ports'] : []),
-            ...(rm ? ['--rm'] : []),
-            service,
-            'sh',
-            '-c',
-            command,
-        ];
-        const cmd = this.buildComposeCommand(runArgs, { profile, override });
+        const cmd = this.buildComposeCommand(
+            [
+                'run',
+                ...(interactive ? ['-it'] : []),
+                ...(exposePorts ? ['--service-ports'] : []),
+                ...(rm ? ['--rm'] : []),
+                service,
+                'sh',
+                '-c',
+                command,
+            ],
+            { profile, override },
+        );
 
         log.info(`Running command in new container ${service}: ${command}`);
 
