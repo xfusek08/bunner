@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { spawn, type SpawnOptions } from 'bun';
 
 import log from '../../framework/log';
@@ -25,7 +26,7 @@ type SignalHandlerOptions = {
     [K in SignalOptionKey]?: SignalConfig;
 };
 
-export interface ProcessRunOptions<Opts extends SpawnOptions.OptionsObject>
+export interface ProcessRunOptions<Opts extends SpawnOptions.OptionsObject<any, any, any>>
     extends SignalHandlerOptions {
     cmd: string[];
     spawnOptions?: Opts;
@@ -100,7 +101,7 @@ export class ProcessRunner {
         handlers.clear();
     }
 
-    public static async run<Opts extends SpawnOptions.OptionsObject>(
+    public static async run<Opts extends SpawnOptions.OptionsObject<any, any, any>>(
         options: ProcessRunOptions<Opts>,
     ): Promise<void> {
         const proc = spawn(options.cmd, {

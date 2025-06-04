@@ -29,14 +29,6 @@ export default class DockerComposeTool {
     }
 
     /**
-     * Checks if Docker Compose file exists in current directory
-     */
-    private async checkComposeFile(): Promise<boolean> {
-        const files = ['docker-compose.yml', 'docker-compose.yaml'];
-        return files.some((file) => existsSync(file));
-    }
-
-    /**
      * Gets Docker Compose configuration
      */
     public async getConfig() {
@@ -143,38 +135,69 @@ export default class DockerComposeTool {
     }
 
     /**
-     * Checks if a Docker Compose service container is running
+     * Gets a list of currently running Docker Compose services
      */
-    private async isContainerRunning(serviceName: string): Promise<boolean> {
+    public async getRunningServices(): Promise<string[]> {
         try {
             const result = await $`docker compose ps --services --filter status=running`.text();
-            const runningServices = result.trim().split('\n').filter(Boolean);
-            return runningServices.includes(serviceName);
+            return result.trim().split('\n').filter(Boolean);
         } catch (error) {
-            log.error(`Error checking container status: ${error}`);
-            return false;
+            log.error(`Error getting running services: ${error}`);
+            return [];
         }
+    }
+
+    /**
+     * Checks if any services from the Docker Compose configuration are currently running
+     */
+    public async isAnyServiceRunning(): Promise<boolean> {
+        const runningServices = await this.getRunningServices();
+        return runningServices.length > 0;
+    }
+
+    /**
+     * Checks if a Docker Compose service container is running
+     */
+    public async isServiceRunning(serviceName: string): Promise<boolean> {
+        if (!(await this.isServiceAvailable(serviceName))) {
+            throw new BunnerError(
+                `Service '${serviceName}' is not available in the Docker Compose configuration.`,
+                1,
+            );
+        }
+
+        const runningServices = await this.getRunningServices();
+        return runningServices.includes(serviceName);
+    }
+
+    /**
+     * Checks if a service is available in the Docker Compose configuration
+     */
+    public async isServiceAvailable(serviceName: string): Promise<boolean> {
+        const config = await this.getConfig();
+        const availableServices = Object.keys(config.services || {});
+        return availableServices.includes(serviceName);
     }
 
     /**
      * Executes a command in a running Docker Compose service container
      */
-    public async executeInRunningContainer({
-        container,
+    public async executeInRunningService({
+        service,
         command,
         profile,
         interactive = false,
     }: {
-        container: string;
+        service: string;
         command: string;
         profile?: string;
         interactive?: boolean;
     }): Promise<void> {
         // Check if container is running
-        const isRunning = await this.isContainerRunning(container);
+        const isRunning = await this.isServiceRunning(service);
         if (!isRunning) {
             throw new BunnerError(
-                `Container ${container} is not running. Use composeRun() instead.`,
+                `Container ${service} is not running. Use composeRun() instead.`,
                 1,
             );
         }
@@ -186,18 +209,18 @@ export default class DockerComposeTool {
             ...(profile ? ['--profile', profile] : []),
             'exec',
             ...(interactive ? ['-it'] : []),
-            container,
+            service,
             'sh',
             '-c',
             command,
         ];
 
         // Log what we're doing
-        log.info(`Executing command in running container ${container}: ${command}`);
+        log.info(`Executing command in running container ${service}: ${command}`);
 
         await this.runAttachedCommand({
             cmd,
-            errorMessage: `Failed to execute command in container ${container}`,
+            errorMessage: `Failed to execute command in container ${service}`,
         });
     }
 
@@ -205,14 +228,14 @@ export default class DockerComposeTool {
      * Runs a one-off command in a specified Docker Compose service
      */
     public async composeRun({
-        container,
+        service,
         command,
         profile,
         rm = true,
         exposePorts = false,
         interactive = false,
     }: {
-        container: string;
+        service: string;
         command: string;
         profile?: string;
         rm?: boolean;
@@ -228,18 +251,18 @@ export default class DockerComposeTool {
             ...(interactive ? ['-it'] : []),
             ...(exposePorts ? ['--service-ports'] : []),
             ...(rm ? ['--rm'] : []),
-            container,
+            service,
             'sh',
             '-c',
             command,
         ];
 
         // Log what we're doing
-        log.info(`Running command in new container ${container}: ${command}`);
+        log.info(`Running command in new container ${service}: ${command}`);
 
         await this.runAttachedCommand({
             cmd,
-            errorMessage: `Failed to run command in container ${container}`,
+            errorMessage: `Failed to run command in container ${service}`,
         });
     }
 
@@ -267,6 +290,14 @@ export default class DockerComposeTool {
         } catch (error) {
             throw new BunnerError(`Failed to rebuild service ${serviceName}: ${error}`, 1);
         }
+    }
+
+    /**
+     * Checks if Docker Compose file exists in current directory
+     */
+    private async checkComposeFile(): Promise<boolean> {
+        const files = ['docker-compose.yml', 'docker-compose.yaml'];
+        return files.some((file) => existsSync(file));
     }
 
     /**
