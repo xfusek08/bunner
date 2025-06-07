@@ -290,23 +290,31 @@ export default class DockerComposeTool {
     /**
      * Rebuilds a specific Docker Compose service
      */
-    public async rebuild(serviceName: string, profile?: string, override?: string): Promise<void> {
+    public async rebuild({
+        service,
+        profile,
+        override,
+    }: {
+        service: string;
+        profile?: string;
+        override?: string;
+    }): Promise<void> {
         try {
-            log.info(`Stopping and removing container for service: ${serviceName}`);
+            log.info(`Stopping and removing container for service: ${service}`);
 
-            await this.executeComposeCommand(['stop', serviceName], { profile, override });
-            await this.executeComposeCommand(['rm', '-f', serviceName], { profile, override });
+            await this.executeComposeCommand(['stop', service], { profile, override });
+            await this.executeComposeCommand(['rm', '-f', service], { profile, override });
 
-            log.info(`Rebuilding service: ${serviceName}`);
+            log.info(`Rebuilding service: ${service}`);
 
-            const cmd = this.buildComposeCommand(['build', serviceName], { profile, override });
+            const cmd = this.buildComposeCommand(['build', service], { profile, override });
             await this.runAttachedCommand({
                 cmd,
-                errorMessage: `Failed to rebuild service ${serviceName}`,
-                successMessage: `Successfully rebuilt service: ${serviceName}`,
+                errorMessage: `Failed to rebuild service ${service}`,
+                successMessage: `Successfully rebuilt service: ${service}`,
             });
         } catch (error) {
-            throw new BunnerError(`Failed to rebuild service ${serviceName}: ${error}`, 1);
+            throw new BunnerError(`Failed to rebuild service ${service}: ${error}`, 1);
         }
     }
 
