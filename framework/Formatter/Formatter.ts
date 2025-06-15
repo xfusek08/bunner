@@ -150,6 +150,8 @@ export default class Formatter {
         let optionTypeName: string = option.type;
         if (option.isType('boolean')) {
             optionTypeName = 'flag';
+        } else if (option.isType('path')) {
+            optionTypeName = 'path';
         }
         return this.withColorHex(`[${optionTypeName}]`, this.BLUE_BRIGHT);
     }
@@ -178,6 +180,8 @@ export default class Formatter {
                 return this.formatBooleanLiteral(true);
             case 'number':
                 return this.formatNumberLiteral(123.45);
+            case 'path':
+                return this.formatStringLiteral('./path/to/file');
         }
     }
 
@@ -337,6 +341,9 @@ export default class Formatter {
         if (option.isType('number')) {
             completionDescription = 'number';
             completionFunction = '_numbers';
+        } else if (option.isType('path')) {
+            completionDescription = option.long || option.short || 'path';
+            completionFunction = '_files';
         } else {
             // string
             completionDescription = `${option.long || 'value'} text`;

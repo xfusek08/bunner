@@ -6,6 +6,8 @@ type OptionValue<T extends OptionType> = T extends 'string'
       ? number
       : T extends 'boolean'
         ? boolean
-        : never;
+        : T extends 'path'
+          ? string
+          : never;
 
 export default OptionValue;

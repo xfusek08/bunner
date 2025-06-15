@@ -73,9 +73,17 @@ export function optionBygName(
 // eslint-disable-next-line unused-imports/no-unused-vars
 type StringRequiredOption = SpecificOptionDefinition<'string'>; // BaseOptionDefinition & { type: 'string', required: true | false }
 
+// Path required option
+// eslint-disable-next-line unused-imports/no-unused-vars
+type PathRequiredOption = SpecificOptionDefinition<'path'>; // BaseOptionDefinition & { type: 'path', required: true | false }
+
 // Number option explicitly required
 // eslint-disable-next-line unused-imports/no-unused-vars
 type RequiredNumberOption = BaseOptionDefinition & RequiredOption<'number'>; // { short/long, description, type: 'number', required: true }
+
+// Path option explicitly required
+// eslint-disable-next-line unused-imports/no-unused-vars
+type RequiredPathOption = BaseOptionDefinition & RequiredOption<'path'>; // { short/long, description, type: 'path', required: true }
 
 // Boolean option (boolean options don't have required field)
 // eslint-disable-next-line unused-imports/no-unused-vars
@@ -84,6 +92,10 @@ type BooleanOptionTest = SpecificOptionDefinition<'boolean'>; // BaseOptionDefin
 // Optional string with default
 // eslint-disable-next-line unused-imports/no-unused-vars
 type OptionalStringWithDefault = BaseOptionDefinition & OptionalOption<'string'>; // { short/long, description, type: 'string', required: false, defaultValue?: string }
+
+// Optional path with default
+// eslint-disable-next-line unused-imports/no-unused-vars
+type OptionalPathWithDefault = BaseOptionDefinition & OptionalOption<'path'>; // { short/long, description, type: 'path', required: false, defaultValue?: string }
 
 // Full option definition includes all types
 // eslint-disable-next-line unused-imports/no-unused-vars
