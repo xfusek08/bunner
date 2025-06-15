@@ -314,9 +314,20 @@ export default class Formatter {
         const cleanDescription = this.escapeQuotes(option.description.replace(/\s+/g, ' ').trim());
         const description = option.required ? `${cleanDescription} (required)` : cleanDescription;
 
+        // Format the option exclusion and completion parts
+        let optionSpec = '';
+
+        if (names.length === 1) {
+            // Only one form (long or short only)
+            optionSpec = `"${names[0]}[${description}]`;
+        } else {
+            // Both short and long forms
+            optionSpec = `"(${names.join(' ')})"{${names.join(',')}}"[${description}]`;
+        }
+
         // Basic completion format for boolean flags
         if (option.isType('boolean')) {
-            return `"(${names.join(' ')})"{${names.join(',')}}"[${description}]"`;
+            return `${optionSpec}"`;
         }
 
         // For non-boolean options, add argument completion
@@ -333,9 +344,9 @@ export default class Formatter {
         }
 
         if (completionFunction) {
-            return `"(${names.join(' ')})"{${names.join(',')}}"[${description}]:${completionDescription}:${completionFunction}"`;
+            return `${optionSpec}:${completionDescription}:${completionFunction}"`;
         } else {
-            return `"(${names.join(' ')})"{${names.join(',')}}"[${description}]:${completionDescription}:"`;
+            return `${optionSpec}:${completionDescription}:"`;
         }
     }
 
