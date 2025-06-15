@@ -243,98 +243,100 @@ export default class Formatter {
     }
 
     public static formatCompleteZshScript(commands: readonly Command[]): string {
-        const tb = new TextBuilder();
+        let result = '';
 
-        tb.line('_arguments -C \\');
-        tb.indent();
-        tb.line('"1: :->command" \\');
-        tb.line('"*:: :->args" \\');
-        tb.line('&& return 0');
-        tb.unindent();
-        tb.line();
+        result += '#compdef _run run\n\n';
+        result += '_run() {\n';
+        result += '    _arguments -C \\\n';
+        result += '        "1: :->command" \\\n';
+        result += '        "*:: :->args" && return 0\n\n';
 
-        tb.line('case "$state" in');
-        tb.indent();
+        result += '    case "$state" in\n';
 
         // Command completion
-        tb.line('command)');
-        tb.indent();
-        tb.line('local -a commands=(');
-        tb.indent();
+        result += '        command)\n';
+        result += '            local -a commands=(\n';
+
         for (const command of commands) {
-            tb.line(`'${command.command}:${this.escapeQuotes(command.description)}'`);
+            // Clean up description to be single line and escape quotes
+            const cleanDescription = this.escapeQuotes(
+                command.description.replace(/\s+/g, ' ').trim(),
+            );
+            result += `                '${command.command}:${cleanDescription}'\n`;
         }
-        tb.unindent();
-        tb.line(')');
-        tb.line('_describe "command" commands');
-        tb.unindent();
-        tb.line(';;');
+
+        result += '            )\n';
+        result += '            _describe "command" commands\n';
+        result += '            ;;\n';
 
         // Arguments completion for each command
-        tb.line('args)');
-        tb.indent();
-        tb.line('case "$words[1]" in');
-        tb.indent();
+        result += '        args)\n';
+        result += '            case "$words[1]" in\n';
 
         for (const command of commands) {
-            tb.line(`${command.command})`);
-            tb.indent();
-            tb.line(`_arguments -A \\"-*\\" \\`);
-            tb.indent();
-            command.optionsDefinition.forEach((optionDef, index) => {
-                const isLast = index === command.optionsDefinition.length - 1;
-                const option = Option.create(optionDef);
-                let completion = this.formatOptionForCompletion(option);
-                if (!isLast) {
-                    completion += ' \\';
-                }
-                tb.line(completion);
-            });
-            tb.unindent();
-            tb.unindent();
-            tb.line(';;');
+            result += `                ${command.command})\n`;
+
+            // Check if command has options
+            if (command.optionsDefinition.length > 0) {
+                result += '                    _arguments -A "-*" \\\n';
+
+                // Add each option spec
+                command.optionsDefinition.forEach((optionDef, index) => {
+                    const option = Option.create(optionDef);
+                    const spec = this.formatOptionForCompletion(option);
+                    const isLast = index === command.optionsDefinition.length - 1;
+                    result += `                        ${spec}${isLast ? '' : ' \\'}\n`;
+                });
+
+                // Add file completion fallback
+                result += '                        "*:: :_files"\n';
+            } else {
+                // No options, just allow file completion
+                result += '                    _files\n';
+            }
+
+            result += '                    ;;\n';
         }
 
-        tb.unindent();
-        tb.line('esac');
-        tb.unindent();
-        tb.line(';;');
+        result += '            esac\n';
+        result += '            ;;\n';
+        result += '    esac\n';
+        result += '}\n\n';
+        result += '_run "$@"\n';
 
-        tb.unindent();
-        tb.line('esac');
-
-        return tb.render();
+        return result;
     }
 
     public static formatOptionForCompletion(option: Option): string {
         const names = [option.shortDashedName, option.longDashedName].filter((o) => !isEmpty(o));
 
-        // Description with required flag if needed
-        const description = option.required
-            ? `${option.description} (required)`
-            : option.description;
+        // Clean up description to be single line and escape quotes
+        const cleanDescription = this.escapeQuotes(option.description.replace(/\s+/g, ' ').trim());
+        const description = option.required ? `${cleanDescription} (required)` : cleanDescription;
 
-        // Basic completion format
-        let result = `"(${names.join(' ')})"{${names.join(',')}}"[${this.escapeQuotes(description)}]`;
-
-        // Add type-specific completion info for non-boolean options
-        if (!option.isType('boolean')) {
-            let completionDescription = '';
-            let completionFunction = '';
-
-            if (option.isType('number')) {
-                completionDescription = 'number';
-                completionFunction = '_numbers';
-            } else {
-                completionDescription = `${option.long || 'text'} text`;
-            }
-
-            result += `:${completionDescription}:${completionFunction}`;
+        // Basic completion format for boolean flags
+        if (option.isType('boolean')) {
+            return `"(${names.join(' ')})"{${names.join(',')}}"[${description}]"`;
         }
 
-        result += '"';
+        // For non-boolean options, add argument completion
+        let completionDescription = '';
+        let completionFunction = '';
 
-        return result;
+        if (option.isType('number')) {
+            completionDescription = 'number';
+            completionFunction = '_numbers';
+        } else {
+            // string
+            completionDescription = `${option.long || 'value'} text`;
+            completionFunction = '';
+        }
+
+        if (completionFunction) {
+            return `"(${names.join(' ')})"{${names.join(',')}}"[${description}]:${completionDescription}:${completionFunction}"`;
+        } else {
+            return `"(${names.join(' ')})"{${names.join(',')}}"[${description}]:${completionDescription}:"`;
+        }
     }
 
     private static escapeQuotes(text: string): string {
