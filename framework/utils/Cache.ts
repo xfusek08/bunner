@@ -1,24 +1,47 @@
 export default class Cache {
-    private _cache: Map<string, unknown> = new Map();
-
-    private constructor() {} // Final class
+    private constructor(private _data: Record<string | number | symbol, unknown> = {}) {}
 
     public static create(): Cache {
         return new Cache();
     }
 
-    public cached<T>(key: string, factory: () => T): T {
-        if (!this._cache.has(key)) {
-            this._cache.set(key, factory());
+    // Overload for async fetchers
+    public cached<T, K extends string | number | symbol>(
+        key: K,
+        fetcher: () => Promise<T>,
+    ): Promise<T>;
+
+    // Overload for sync fetchers
+    public cached<T, K extends string | number | symbol>(key: K, fetcher: () => T): T;
+
+    // Implementation that handles both cases
+    public cached<T, K extends string | number | symbol>(
+        key: K,
+        fetcher: () => T | Promise<T>,
+    ): T | Promise<T> {
+        if (this._data[key]) {
+            return this._data[key] as T;
         }
-        return this._cache.get(key) as T;
+
+        const result = fetcher();
+
+        if (result instanceof Promise) {
+            // Handle async case
+            return result.then((asyncResult) => {
+                this._data[key] = asyncResult;
+                return asyncResult;
+            });
+        } else {
+            // Handle sync case
+            this._data[key] = result;
+            return result;
+        }
     }
 
-    public invalidate(key?: string) {
-        if (key !== undefined) {
-            this._cache.delete(key);
-        } else {
-            this._cache.clear();
-        }
+    /**
+     * Invalidates the entire cache by clearing all stored data
+     */
+    public invalidate(): void {
+        this._data = {};
     }
 }

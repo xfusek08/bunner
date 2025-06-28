@@ -13,7 +13,7 @@ run_in_bun_docker() {
     #------------------------------------------------------
     # Build Docker image if it doesn't exist
     #------------------------------------------------------
-    if ! docker image inspect bun-docker-alpine:latest > /dev/null 2>&1; then
+    if ! docker image inspect bun-docker-alpine:latest >/dev/null 2>&1; then
         echo "Building bun-docker-alpine image..."
         cd "$thisScriptFileLocation"
         docker build -t bun-docker-alpine:latest -f Dockerfile .
@@ -24,7 +24,7 @@ run_in_bun_docker() {
     # Setup Docker socket permissions
     #------------------------------------------------------
     # Get host's Docker socket group ID
-    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2> /dev/null || echo 0)
+    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo 0)
 
     #------------------------------------------------------
     # Setup commands directory (if provided)
@@ -42,7 +42,7 @@ run_in_bun_docker() {
     local container_name="bunner"
     local counter=1
 
-    while docker container inspect "$container_name" > /dev/null 2>&1; do
+    while docker container inspect "$container_name" >/dev/null 2>&1; do
         container_name="bunner_$counter"
         counter=$((counter + 1))
     done
@@ -77,6 +77,7 @@ run_in_bun_docker() {
         --group-add "$DOCKER_GID" \
         --workdir "$directory" \
         --user bun \
+        --network host \
         bun-docker-alpine:latest \
         bun "$thisScriptFileLocation/entry.ts" ${commandsDirectory:+"$commandsDirectory"} "$@"
 }
