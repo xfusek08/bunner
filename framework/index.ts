@@ -5,3 +5,4 @@ import log from './log';
 import TextBuilder from './text-rendering/TextBuilder';
 
 export { $, defineCommand, log, TextBuilder };
+export * from './utils';
