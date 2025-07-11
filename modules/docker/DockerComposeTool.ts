@@ -32,7 +32,7 @@ export default class DockerComposeTool {
     /**
      * Gets Docker Compose configuration
      */
-    public async getConfig({profile, override}: {profile?: string, override?: string} = {}) {
+    public async getConfig({ profile, override }: { profile?: string; override?: string } = {}) {
         try {
             const cmd = this.buildComposeCommand(['config', '--format', 'json'], {
                 profile,
@@ -204,7 +204,7 @@ export default class DockerComposeTool {
         profile?: string,
         override?: string,
     ): Promise<boolean> {
-        const config = await this.getConfig({profile, override});
+        const config = await this.getConfig({ profile, override });
         const availableServices = Object.keys(config.services || {});
         return availableServices.includes(serviceName);
     }
