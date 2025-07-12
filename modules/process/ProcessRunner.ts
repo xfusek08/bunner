@@ -119,4 +119,34 @@ export class ProcessRunner {
             ProcessRunner.cleanupSignalHandlers(registeredHandlers);
         }
     }
+    
+    /**
+     * Runs a command attached to the current terminal.
+     */
+    public static async runAttachedCommand({
+        cmd,
+        errorMessage,
+        successMessage = 'Exited container successfully',
+    }: {
+        cmd: string[];
+        errorMessage: string;
+        successMessage?: string;
+    }): Promise<void> {
+        try {
+            await ProcessRunner.run({
+                cmd,
+                spawnOptions: {
+                    stdio: ['inherit', 'inherit', 'inherit'],
+                    onExit: () => {
+                        log.success(successMessage);
+                    },
+                },
+                onSigInt: async () => {
+                    log.info('Exiting...');
+                },
+            });
+        } catch (err) {
+            throw new BunnerError(`${errorMessage}: ${err}`, 1);
+        }
+    }
 }

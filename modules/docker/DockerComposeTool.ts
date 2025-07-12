@@ -100,7 +100,7 @@ export default class DockerComposeTool {
             for (const profile of profiles) {
                 logInfo(`Cleaning up profile: ${profile}`);
                 try {
-                    await $`docker compose --profile ${profile} down --remove-orphans`.quiet();
+                    await $`docker compose --profile ${profile} down --remove-orphans`;
                 } catch (error) {
                     throw new BunnerError(`Failed to bring down profile ${profile}: ${error}`, 1);
                 }
@@ -145,7 +145,7 @@ export default class DockerComposeTool {
                 : 'Starting Docker Compose',
         );
 
-        await this.runAttachedCommand({
+        await ProcessRunner.runAttachedCommand({
             cmd,
             errorMessage: 'Docker Compose up failed',
             successMessage: 'Docker Compose shut down successfully',
@@ -239,7 +239,7 @@ export default class DockerComposeTool {
 
         log.info(`Executing command in running container ${service}: ${command}`);
 
-        await this.runAttachedCommand({
+        await ProcessRunner.runAttachedCommand({
             cmd,
             errorMessage: `Failed to execute command in container ${service}`,
         });
@@ -281,7 +281,7 @@ export default class DockerComposeTool {
 
         log.info(`Running command in new container ${service}: ${command}`);
 
-        await this.runAttachedCommand({
+        await ProcessRunner.runAttachedCommand({
             cmd,
             errorMessage: `Failed to run command in container ${service}`,
         });
@@ -308,7 +308,7 @@ export default class DockerComposeTool {
             log.info(`Rebuilding service: ${service}`);
 
             const cmd = this.buildComposeCommand(['build', service], { profile, override });
-            await this.runAttachedCommand({
+            await ProcessRunner.runAttachedCommand({
                 cmd,
                 errorMessage: `Failed to rebuild service ${service}`,
                 successMessage: `Successfully rebuilt service: ${service}`,
@@ -321,7 +321,7 @@ export default class DockerComposeTool {
     /**
      * Builds a complete Docker Compose command with common arguments
      */
-    private buildComposeCommand(
+    public buildComposeCommand(
         args: string[],
         options: { profile?: string; override?: string } = {},
     ): string[] {
@@ -416,35 +416,5 @@ export default class DockerComposeTool {
     private async checkComposeFile(): Promise<boolean> {
         const files = ['docker-compose.yml', 'docker-compose.yaml'];
         return files.some((file) => existsSync(file));
-    }
-
-    /**
-     * Runs a command attached to the current terminal.
-     */
-    private async runAttachedCommand({
-        cmd,
-        errorMessage,
-        successMessage = 'Exited container successfully',
-    }: {
-        cmd: string[];
-        errorMessage: string;
-        successMessage?: string;
-    }): Promise<void> {
-        try {
-            await ProcessRunner.run({
-                cmd,
-                spawnOptions: {
-                    stdio: ['inherit', 'inherit', 'inherit'],
-                    onExit: () => {
-                        log.success(successMessage);
-                    },
-                },
-                onSigInt: async () => {
-                    log.info('Exiting...');
-                },
-            });
-        } catch (err) {
-            throw new BunnerError(`${errorMessage}: ${err}`, 1);
-        }
     }
 }
