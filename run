@@ -1,5 +1,35 @@
 #!/bin/sh
 
+# Bunner Runner
+# =============
+# This script runs bunner commands either natively or in a Docker container.
+#
+# Configuration:
+# - BUNNER_NATIVE: Set to "true" to run natively (requires bun installed)
+# - BUNNER_ENV_VARS: Space-separated list of environment variable names
+#   to pass into the Docker container (e.g., "VAR1 VAR2 VAR3")
+# - BUNNER_VOLUMES: Space-separated list of additional paths to mount
+#   into the Docker container (e.g., "/path/one /path/two")
+
+run_native() {
+    #------------------------------------------------------
+    # Run bunner natively using system bun
+    #------------------------------------------------------
+    local thisScriptFileLocation=$(readlink -f "$0")
+    thisScriptFileLocation=$(dirname "$thisScriptFileLocation")
+    
+    local commandsDirectory=""
+    if [ -n "$1" ]; then
+        commandsDirectory="$1"
+        shift
+        commandsDirectory=$(readlink -f "$commandsDirectory")
+    fi
+    
+    export BUNNER_ENTRY_POINT_DIRECTORY="$thisScriptFileLocation"
+    
+    bun "$thisScriptFileLocation/entry.ts" ${commandsDirectory:+"$commandsDirectory"} "$@"
+}
+
 run_in_bun_docker() {
     #------------------------------------------------------
     # Setup paths and directories
@@ -59,6 +89,36 @@ run_in_bun_docker() {
     fi
 
     #------------------------------------------------------
+    # Build environment variable flags from BUNNER_ENV_VARS
+    #------------------------------------------------------
+    # BUNNER_ENV_VARS should be a space-separated list of variable names
+    # that should be passed to the Docker container
+    local ENV_FLAGS=""
+    if [ -n "$BUNNER_ENV_VARS" ]; then
+        for var in $BUNNER_ENV_VARS; do
+            # Use indirect variable expansion for POSIX sh compatibility
+            eval "local value=\$$var"
+            if [ -n "$value" ]; then
+                ENV_FLAGS="$ENV_FLAGS --env $var=$value"
+            fi
+        done
+    fi
+
+    #------------------------------------------------------
+    # Build volume mount flags from BUNNER_VOLUMES
+    #------------------------------------------------------
+    # BUNNER_VOLUMES should be a space-separated list of paths
+    # that should be mounted into the Docker container
+    local VOLUME_FLAGS=""
+    if [ -n "$BUNNER_VOLUMES" ]; then
+        for vol in $BUNNER_VOLUMES; do
+            if [ -e "$vol" ]; then
+                VOLUME_FLAGS="$VOLUME_FLAGS --volume $vol:$vol"
+            fi
+        done
+    fi
+
+    #------------------------------------------------------
     # Run Bun in Docker container
     #------------------------------------------------------
     docker run \
@@ -70,9 +130,13 @@ run_in_bun_docker() {
         --env COLUMNS="${COLUMNS:-$(tput cols)}" \
         --env LINES="${LINES:-$(tput lines)}" \
         --env BUNNER_ENTRY_POINT_DIRECTORY="$thisScriptFileLocation" \
+        --env HOME="$HOME" \
+        $ENV_FLAGS \
         --volume "$directory:$directory" \
         --volume "$commandsDirectory:$commandsDirectory" \
         --volume "$thisScriptFileLocation:$thisScriptFileLocation" \
+        --volume "$HOME:$HOME" \
+        $VOLUME_FLAGS \
         --volume /var/run/docker.sock:/var/run/docker.sock \
         --group-add "$DOCKER_GID" \
         --workdir "$directory" \
@@ -82,5 +146,17 @@ run_in_bun_docker() {
         bun "$thisScriptFileLocation/entry.ts" ${commandsDirectory:+"$commandsDirectory"} "$@"
 }
 
-# Execute the function with all arguments passed to the script
-run_in_bun_docker "$@"
+#------------------------------------------------------
+# Main: Check mode and run accordingly
+#------------------------------------------------------
+if [ "$BUNNER_NATIVE" = "true" ]; then
+    # Check if bun is installed
+    if ! command -v bun >/dev/null 2>&1; then
+        echo "Error: BUNNER_NATIVE is set but bun is not installed" >&2
+        echo "Please install bun or unset BUNNER_NATIVE to use Docker mode" >&2
+        exit 1
+    fi
+    run_native "$@"
+else
+    run_in_bun_docker "$@"
+fi
