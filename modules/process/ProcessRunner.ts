@@ -119,7 +119,7 @@ export class ProcessRunner {
             ProcessRunner.cleanupSignalHandlers(registeredHandlers);
         }
     }
-    
+
     /**
      * Runs a command attached to the current terminal.
      */

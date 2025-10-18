@@ -17,16 +17,16 @@ run_native() {
     #------------------------------------------------------
     local thisScriptFileLocation=$(readlink -f "$0")
     thisScriptFileLocation=$(dirname "$thisScriptFileLocation")
-    
+
     local commandsDirectory=""
     if [ -n "$1" ]; then
         commandsDirectory="$1"
         shift
         commandsDirectory=$(readlink -f "$commandsDirectory")
     fi
-    
+
     export BUNNER_ENTRY_POINT_DIRECTORY="$thisScriptFileLocation"
-    
+
     bun "$thisScriptFileLocation/entry.ts" ${commandsDirectory:+"$commandsDirectory"} "$@"
 }
 
@@ -43,7 +43,7 @@ run_in_bun_docker() {
     #------------------------------------------------------
     # Build Docker image if it doesn't exist
     #------------------------------------------------------
-    if ! docker image inspect bun-docker-alpine:latest >/dev/null 2>&1; then
+    if ! docker image inspect bun-docker-alpine:latest > /dev/null 2>&1; then
         echo "Building bun-docker-alpine image..."
         cd "$thisScriptFileLocation"
         docker build -t bun-docker-alpine:latest -f Dockerfile .
@@ -54,7 +54,7 @@ run_in_bun_docker() {
     # Setup Docker socket permissions
     #------------------------------------------------------
     # Get host's Docker socket group ID
-    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo 0)
+    DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2> /dev/null || echo 0)
 
     #------------------------------------------------------
     # Setup commands directory (if provided)
@@ -72,7 +72,7 @@ run_in_bun_docker() {
     local container_name="bunner"
     local counter=1
 
-    while docker container inspect "$container_name" >/dev/null 2>&1; do
+    while docker container inspect "$container_name" > /dev/null 2>&1; do
         container_name="bunner_$counter"
         counter=$((counter + 1))
     done
@@ -151,7 +151,7 @@ run_in_bun_docker() {
 #------------------------------------------------------
 if [ "$BUNNER_NATIVE" = "true" ]; then
     # Check if bun is installed
-    if ! command -v bun >/dev/null 2>&1; then
+    if ! command -v bun > /dev/null 2>&1; then
         echo "Error: BUNNER_NATIVE is set but bun is not installed" >&2
         echo "Please install bun or unset BUNNER_NATIVE to use Docker mode" >&2
         exit 1
