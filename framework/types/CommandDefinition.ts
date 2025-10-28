@@ -1,13 +1,34 @@
 import CategoryDescription from './CategoryDescription';
 import CommandAction from './CommandAction';
+import CommandDescription from './CommandDescription';
 import { OptionDefinitions } from './OptionDefinition';
 
 export default interface CommandDefinition<O extends undefined | OptionDefinitions> {
     /** The command name that users will type to invoke this command */
     readonly command: string;
 
-    /** A brief description of what this command does */
-    readonly description: string;
+    /**
+     * A brief description of what this command does
+     *
+     * Can be either:
+     * - A string for simple descriptions
+     * - A callback function that receives a TextBuilder instance and returns a string
+     *
+     * Examples:
+     * ```typescript
+     * // Simple string description
+     * description: 'Builds the project'
+     *
+     * // Callback with TextBuilder for formatted descriptions
+     * description: (tb) => {
+     *     tb.line('Builds the project with the following options:');
+     *     tb.indent();
+     *     tb.line('- Fast mode');
+     *     tb.line('- Optimization enabled');
+     * }
+     * ```
+     */
+    readonly description: CommandDescription;
 
     /**
      * Optional category to group related commands together

@@ -25,15 +25,27 @@ export default class Formatter {
     static readonly BOOLEAN_LITERAL_COLOR = '#cd5c5c';
     static readonly NUMBER_LITERAL_COLOR = '#00eeee';
 
+    private static formatCommandDescriptionOneLine(command: Command): string {
+        let oneLineDescription = '';
+        if (typeof command.description === 'string') {
+            oneLineDescription = this.formatCommandDescription(command.description);
+        } else {
+            const tb = new TextBuilder();
+            command.description(tb, true);
+            oneLineDescription = tb.render();
+        }
+        return oneLineDescription;
+    }
+
     public static formatCommandSingleLine(command: Command): string {
-        return `${this.formatCommandName(command.command)} - ${this.formatCommandDescription(command.description)}`;
+        return `${this.formatCommandName(command.command)} - ${this.formatCommandDescriptionOneLine(command)}`;
     }
 
     public static formatCommandList(tb: TextBuilder, commands: readonly Command[]) {
         for (const command of commands) {
             tb.line(this.formatCommandUsage(command));
             tb.indent();
-            tb.aligned([this.original('⋗'), this.formatCommandDescription(command.description)]);
+            tb.line(`${this.original('⋗')} ${this.formatCommandDescriptionOneLine(command)}`);
             tb.unindent();
             tb.line();
         }
@@ -59,7 +71,11 @@ export default class Formatter {
         tb.line(this.formatCommandName(command.command));
         tb.line();
         tb.indent();
-        tb.line(this.formatCommandDescription(command.description));
+        if (typeof command.description === 'string') {
+            tb.line(this.formatCommandDescription(command.description));
+        } else {
+            command.description(tb);
+        }
         tb.unindent();
         tb.line();
 
@@ -262,9 +278,8 @@ export default class Formatter {
         result += '            local -a commands=(\n';
 
         for (const command of commands) {
-            // Clean up description to be single line and escape quotes
             const cleanDescription = this.escapeQuotes(
-                command.description.replace(/\s+/g, ' ').trim(),
+                this.formatCommandDescriptionOneLine(command),
             );
             result += `                '${command.command}:${cleanDescription}'\n`;
         }

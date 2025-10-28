@@ -1,12 +1,13 @@
 import CategoryDescription from './CategoryDescription';
 import CommandAction from './CommandAction';
 import CommandDefinition from './CommandDefinition';
+import CommandDescription from './CommandDescription';
 import { OptionDefinitions } from './OptionDefinition';
 
 export default class Command {
     private constructor(
         public readonly command: string,
-        public readonly description: string,
+        public readonly description: CommandDescription,
         public readonly category: string | null | CategoryDescription,
         public readonly optionsDefinition: OptionDefinitions,
         public readonly passUnknownOptions: boolean = false,
