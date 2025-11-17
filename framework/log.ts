@@ -1,11 +1,18 @@
 export default class log {
     private static timestamp(): string {
-        return new Date().toISOString();
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${day}. ${month}. ${year} ${hours}:${minutes}:${seconds}`;
     }
 
     private static format(level: string, message: string, color: string): string {
-        const paddedLevel = level.padStart(7, ' ');
-        return `${color}[${paddedLevel}] ${this.timestamp()}: ${message}\x1b[0m`;
+        const paddedLevel = level.padEnd(7, ' ');
+        return `${color}${this.timestamp()} | ${paddedLevel} | ${message}\x1b[0m`;
     }
 
     public static info(message: string, stdout: boolean = false, ...rest: unknown[]): void {
