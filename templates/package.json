@@ -3,6 +3,6 @@
         "bunner": "file:$BUNNER_ROOT"
     },
     "devDependencies": {
-        "@types/bun": "^1.1.14"
+        "@types/bun": "latest"
     }
 }
