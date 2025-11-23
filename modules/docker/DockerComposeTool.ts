@@ -254,7 +254,6 @@ export default class DockerComposeTool {
         profile,
         override,
         rm = true,
-        exposePorts = false,
         interactive = false,
     }: {
         service: string;
@@ -262,9 +261,13 @@ export default class DockerComposeTool {
         profile?: string;
         override?: string;
         rm?: boolean;
-        exposePorts?: boolean;
         interactive?: boolean;
     }): Promise<void> {
+        let exposePorts = false;
+        
+        const config = await this.getConfig({ profile, override });
+        exposePorts = (config?.services?.[service]?.ports?.length ?? 0) > 0;
+
         const cmd = this.buildComposeCommand(
             [
                 'run',
@@ -278,8 +281,6 @@ export default class DockerComposeTool {
             ],
             { profile, override },
         );
-
-        log.info(`Running command in new container ${service}: ${command}`);
 
         await ProcessRunner.runAttachedCommand({
             cmd,

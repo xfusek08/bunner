@@ -133,6 +133,7 @@ export class ProcessRunner {
         successMessage?: string;
     }): Promise<void> {
         try {
+            log.debug(`Running command: ${cmd.join(' ')}`);
             await ProcessRunner.run({
                 cmd,
                 spawnOptions: {
