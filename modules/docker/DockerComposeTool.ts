@@ -5,6 +5,7 @@ import { readdir } from 'fs/promises';
 import { log } from '../../framework';
 import BunnerError from '../../framework/types/BunnerError';
 import { ProcessRunner } from '../process/ProcessRunner';
+import { DockerComposeConfig, parseDockerComposeConfigJson } from './configValidator';
 
 export default class DockerComposeTool {
     private constructor() {}
@@ -32,18 +33,31 @@ export default class DockerComposeTool {
     /**
      * Gets Docker Compose configuration
      */
-    public async getConfig({ profile, override }: { profile?: string; override?: string } = {}) {
-        try {
-            const cmd = this.buildComposeCommand(['config', '--format', 'json'], {
-                profile,
-                override,
-            });
-            const configResult = await $`${cmd}`.text();
-            return JSON.parse(configResult);
-        } catch (error) {
-            log.error(`Error getting Docker Compose configuration: ${error}`);
-            return null;
+    public async getConfig({
+        profile,
+        override,
+    }: {
+        profile?: string;
+        override?: string;
+    } = {}): Promise<DockerComposeConfig> {
+        const cmd = this.buildComposeCommand(['config', '--format', 'json'], {
+            profile,
+            override,
+        });
+
+        log.debug(`Getting Docker Compose configuration with command: ${cmd.join(' ')}`);
+        const configResult = await $`${cmd}`.quiet().nothrow();
+
+        if (configResult.exitCode !== 0) {
+            throw new BunnerError(
+                `Docker Compose config command failed with exit code ${configResult.exitCode}: ${configResult.stderr}`,
+                1,
+            );
         }
+
+        const res = parseDockerComposeConfigJson(configResult.text());
+        log.debug('Docker Compose configuration parsed successfully');
+        return res;
     }
 
     /**
@@ -205,7 +219,7 @@ export default class DockerComposeTool {
         override?: string,
     ): Promise<boolean> {
         const config = await this.getConfig({ profile, override });
-        const availableServices = Object.keys(config.services || {});
+        const availableServices = Object.keys(config.services);
         return availableServices.includes(serviceName);
     }
 
@@ -263,10 +277,8 @@ export default class DockerComposeTool {
         rm?: boolean;
         interactive?: boolean;
     }): Promise<void> {
-        let exposePorts = false;
-
         const config = await this.getConfig({ profile, override });
-        exposePorts = (config?.services?.[service]?.ports?.length ?? 0) > 0;
+        const exposePorts = (config.services[service]?.ports?.length ?? 0) > 0;
 
         const cmd = this.buildComposeCommand(
             [
