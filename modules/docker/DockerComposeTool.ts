@@ -264,7 +264,7 @@ export default class DockerComposeTool {
         interactive?: boolean;
     }): Promise<void> {
         let exposePorts = false;
-        
+
         const config = await this.getConfig({ profile, override });
         exposePorts = (config?.services?.[service]?.ports?.length ?? 0) > 0;
 
