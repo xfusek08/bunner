@@ -60,12 +60,10 @@ export default async function executeCommandInstance({
         });
     }
 
-    return (
-        (await command.action({
-            args: restArgs,
-            options,
-            runCommand,
-            commandCollection,
-        })) ?? 0
-    );
+    return await command.action({
+        args: restArgs,
+        options,
+        runCommand,
+        commandCollection,
+    });
 }

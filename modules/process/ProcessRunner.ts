@@ -26,8 +26,9 @@ type SignalHandlerOptions = {
     [K in SignalOptionKey]?: SignalConfig;
 };
 
-export interface ProcessRunOptions<Opts extends SpawnOptions.OptionsObject<any, any, any>>
-    extends SignalHandlerOptions {
+export interface ProcessRunOptions<
+    Opts extends SpawnOptions.OptionsObject<any, any, any>,
+> extends SignalHandlerOptions {
     cmd: string[];
     spawnOptions?: Opts;
 }
@@ -112,8 +113,17 @@ export class ProcessRunner {
         const registeredHandlers = ProcessRunner.registerSignalHandlers(options, proc);
 
         try {
-            await proc.exited;
+            const exitCode = await proc.exited;
+            if (exitCode !== 0) {
+                throw new BunnerError(
+                    `Process exited with non-zero exit code: ${exitCode}`,
+                    exitCode,
+                );
+            }
         } catch (err) {
+            if (err instanceof BunnerError) {
+                throw err;
+            }
             throw new BunnerError(`Process execution failed: ${err}`, 1);
         } finally {
             ProcessRunner.cleanupSignalHandlers(registeredHandlers);
