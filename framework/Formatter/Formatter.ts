@@ -46,6 +46,15 @@ export default class Formatter {
             tb.line(this.formatCommandUsage(command));
             tb.indent();
             tb.line(`${this.original('⋗')} ${this.formatCommandDescriptionOneLine(command)}`);
+            tb.line();
+            if (command.aliases.length > 0) {
+                tb.line(
+                    this.withColorHex(
+                        `aliases: ${command.aliases.map((a) => this.formatCommandName(a)).join(', ')}`,
+                        this.OPTIONAL_PROPERTY_COLOR,
+                    ),
+                );
+            }
             tb.unindent();
             tb.line();
         }
@@ -69,6 +78,14 @@ export default class Formatter {
     public static formatCommandHelp(tb: TextBuilder, command: Command) {
         tb.line();
         tb.line(this.formatCommandName(command.command));
+        if (command.aliases.length > 0) {
+            tb.line(
+                this.withColorHex(
+                    `Aliases: ${command.aliases.map((a) => this.formatCommandName(a)).join(', ')}`,
+                    this.OPTIONAL_PROPERTY_COLOR,
+                ),
+            );
+        }
         tb.line();
         tb.indent();
         if (typeof command.description === 'string') {
@@ -282,6 +299,9 @@ export default class Formatter {
                 this.formatCommandDescriptionOneLine(command),
             );
             result += `                '${command.command}:${cleanDescription}'\n`;
+            for (const alias of command.aliases) {
+                result += `                '${alias}:${cleanDescription}'\n`;
+            }
         }
 
         result += '            )\n';
@@ -293,7 +313,8 @@ export default class Formatter {
         result += '            case "$words[1]" in\n';
 
         for (const command of commands) {
-            result += `                ${command.command})\n`;
+            const commandNames = [command.command, ...command.aliases];
+            result += `                ${commandNames.join('|')})\n`;
 
             // Check if command has options
             if (command.optionsDefinition.length > 0) {

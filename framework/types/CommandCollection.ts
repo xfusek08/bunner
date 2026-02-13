@@ -82,6 +82,13 @@ export default class CommandCollection {
             }
         }
 
+        // Search by alias
+        for (const cmd of this.allCommands) {
+            if (cmd.aliases.includes(command)) {
+                return cmd;
+            }
+        }
+
         return null;
     }
 

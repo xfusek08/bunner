@@ -12,6 +12,7 @@ export default class Command {
         public readonly optionsDefinition: OptionDefinitions,
         public readonly passUnknownOptions: boolean = false,
         public readonly action: CommandAction<OptionDefinitions>,
+        public readonly aliases: readonly string[] = [],
     ) {}
 
     public static fromDefinition(
@@ -24,6 +25,7 @@ export default class Command {
             definition.options ?? [],
             definition.passUnknownOptions,
             definition.action as CommandAction<OptionDefinitions>, // This type cas is because action has different call signatures for different CommandDefinition variants
+            definition.aliases ?? [],
         );
     }
 }

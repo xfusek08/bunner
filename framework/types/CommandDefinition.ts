@@ -31,6 +31,20 @@ export default interface CommandDefinition<O extends undefined | OptionDefinitio
     readonly description: CommandDescription;
 
     /**
+     * Optional short aliases for this command
+     *
+     * Aliases allow users to invoke the command using shorter names.
+     * They are displayed in the help output next to the command name.
+     *
+     * Examples:
+     * ```typescript
+     * aliases: ['cc']
+     * aliases: ['gs', 'genschema']
+     * ```
+     */
+    readonly aliases?: readonly string[];
+
+    /**
      * Optional category to group related commands together
      *
      * Examples:
